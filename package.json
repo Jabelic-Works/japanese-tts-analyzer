@@ -2,12 +2,12 @@
   "name": "japanese-tts-analyzer",
   "private": true,
   "scripts": {
-    "build": "pnpm --filter @ssml-utilities/accent-ir build && pnpm --filter @ssml-utilities/analyze-contract build && pnpm --filter @ssml-utilities/analyze-backend build",
-    "test": "pnpm --filter @ssml-utilities/accent-ir test && pnpm --filter @ssml-utilities/analyze-backend test",
-    "lint": "pnpm --filter @ssml-utilities/analyze-contract lint && pnpm --filter @ssml-utilities/analyze-backend lint",
-    "type-check": "pnpm --filter @ssml-utilities/accent-ir type-check && pnpm --filter @ssml-utilities/analyze-contract type-check && pnpm --filter @ssml-utilities/analyze-backend type-check",
-    "dev": "pnpm --filter @ssml-utilities/analyze-backend preview",
-    "clean": "pnpm --filter @ssml-utilities/accent-ir clean && pnpm --filter @ssml-utilities/analyze-contract clean && pnpm --filter @ssml-utilities/analyze-backend clean",
+    "build": "pnpm --filter @japanese-tts-analyzer/accent-ir build && pnpm --filter @japanese-tts-analyzer/analyze-contract build && pnpm --filter @japanese-tts-analyzer/tts-playground build && pnpm --filter @japanese-tts-analyzer/analyze-backend build",
+    "test": "pnpm --filter @japanese-tts-analyzer/accent-ir test && pnpm --filter @japanese-tts-analyzer/analyze-backend test",
+    "lint": "pnpm --filter @japanese-tts-analyzer/analyze-contract lint && pnpm --filter @japanese-tts-analyzer/tts-playground lint && pnpm --filter @japanese-tts-analyzer/analyze-backend lint",
+    "type-check": "pnpm --filter @japanese-tts-analyzer/accent-ir type-check && pnpm --filter @japanese-tts-analyzer/analyze-contract type-check && pnpm --filter @japanese-tts-analyzer/tts-playground type-check && pnpm --filter @japanese-tts-analyzer/analyze-backend type-check",
+    "dev": "pnpm --filter @japanese-tts-analyzer/tts-playground preview:worker",
+    "clean": "pnpm --filter @japanese-tts-analyzer/accent-ir clean && pnpm --filter @japanese-tts-analyzer/analyze-contract clean && pnpm --filter @japanese-tts-analyzer/tts-playground clean && pnpm --filter @japanese-tts-analyzer/analyze-backend clean",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "changeset publish"
@@ -15,6 +15,7 @@
   "workspaces": [
     "packages/accent-ir",
     "packages/analyze-contract",
+    "packages/tts-playground",
     "apps/analyze-backend"
   ],
   "dependencies": {

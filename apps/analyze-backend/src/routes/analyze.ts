@@ -1,4 +1,4 @@
-import type { AnalyzeErrorResponse } from "@ssml-utilities/analyze-contract";
+import type { AnalyzeErrorResponse } from "@japanese-tts-analyzer/analyze-contract";
 import {
   analyzeRequest,
   validateAnalyzeRequest,

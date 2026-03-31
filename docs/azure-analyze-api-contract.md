@@ -136,7 +136,7 @@ interface AnalyzeRequest {
 ### TypeScript sketch
 
 ```ts
-import type { AccentIR, AccentIREmitWarning, UniDicRawToken } from "@ssml-utilities/accent-ir"
+import type { AccentIR, AccentIREmitWarning, UniDicRawToken } from "@japanese-tts-analyzer/accent-ir"
 
 interface AnalyzeSuccessResponse {
   text: string

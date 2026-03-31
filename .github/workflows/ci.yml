@@ -6,7 +6,7 @@ permissions:
 
 on:
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
   verify:
@@ -32,19 +32,25 @@ jobs:
 
       - name: Verify accent-ir
         run: |
-          pnpm --filter @ssml-utilities/accent-ir build
-          pnpm --filter @ssml-utilities/accent-ir test
-          pnpm --filter @ssml-utilities/accent-ir type-check
+          pnpm --filter @japanese-tts-analyzer/accent-ir build
+          pnpm --filter @japanese-tts-analyzer/accent-ir test
+          pnpm --filter @japanese-tts-analyzer/accent-ir type-check
 
       - name: Verify analyze-contract
         run: |
-          pnpm --filter @ssml-utilities/analyze-contract build
-          pnpm --filter @ssml-utilities/analyze-contract lint
-          pnpm --filter @ssml-utilities/analyze-contract type-check
+          pnpm --filter @japanese-tts-analyzer/analyze-contract build
+          pnpm --filter @japanese-tts-analyzer/analyze-contract lint
+          pnpm --filter @japanese-tts-analyzer/analyze-contract type-check
+
+      - name: Verify tts-playground
+        run: |
+          pnpm --filter @japanese-tts-analyzer/tts-playground lint
+          pnpm --filter @japanese-tts-analyzer/tts-playground type-check
+          pnpm --filter @japanese-tts-analyzer/tts-playground build
 
       - name: Verify analyze-backend
         run: |
-          pnpm --filter @ssml-utilities/analyze-backend test
-          pnpm --filter @ssml-utilities/analyze-backend lint
-          pnpm --filter @ssml-utilities/analyze-backend type-check
-          pnpm --filter @ssml-utilities/analyze-backend build
+          pnpm --filter @japanese-tts-analyzer/analyze-backend test
+          pnpm --filter @japanese-tts-analyzer/analyze-backend lint
+          pnpm --filter @japanese-tts-analyzer/analyze-backend type-check
+          pnpm --filter @japanese-tts-analyzer/analyze-backend build

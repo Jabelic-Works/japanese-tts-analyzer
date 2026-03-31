@@ -2,7 +2,7 @@ import type {
   AccentIR,
   AccentIREmitWarning,
   UniDicRawToken,
-} from "@ssml-utilities/accent-ir";
+} from "@japanese-tts-analyzer/accent-ir";
 
 export interface AnalyzeRequest {
   text: string;

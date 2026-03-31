@@ -1,4 +1,4 @@
-# @ssml-utilities/accent-ir
+# @japanese-tts-analyzer/accent-ir
 
 `AccentIR` を正本にして、Azure TTS / Google TTS 向けの `SSML` を生成するパッケージです。
 
@@ -11,7 +11,7 @@
 ## 使用例
 
 ```typescript
-import { emitAzureSSML, emitGoogleSSML, type AccentIR } from "@ssml-utilities/accent-ir";
+import { emitAzureSSML, emitGoogleSSML, type AccentIR } from "@japanese-tts-analyzer/accent-ir";
 
 const accentIR: AccentIR = {
   segments: [
@@ -27,7 +27,7 @@ const google = emitGoogleSSML(accentIR, { voice: "ja-JP-Standard-A" });
 
 ## UniDic contract
 
-`UniDic` を最初の解析 backend として扱うために、`@ssml-utilities/accent-ir` では raw token contract と adapter interface も公開します。
+`UniDic` を最初の解析 backend として扱うために、`@japanese-tts-analyzer/accent-ir` では raw token contract と adapter interface も公開します。
 
 `MeCab` や辞書のロード自体は行いませんが、すでに正規化された `UniDicRawToken[]` から `AccentIR` を組み立てる MVP adapter は提供します。
 
@@ -35,7 +35,7 @@ const google = emitGoogleSSML(accentIR, { voice: "ja-JP-Standard-A" });
 import type {
   UniDicAccentIRAdapter,
   UniDicRawToken,
-} from "@ssml-utilities/accent-ir";
+} from "@japanese-tts-analyzer/accent-ir";
 
 const tokens: UniDicRawToken[] = [
   {
@@ -49,7 +49,7 @@ const tokens: UniDicRawToken[] = [
 ```
 
 ```typescript
-import { adaptUniDicTokensToAccentIR } from "@ssml-utilities/accent-ir";
+import { adaptUniDicTokensToAccentIR } from "@japanese-tts-analyzer/accent-ir";
 
 const result = adaptUniDicTokensToAccentIR({ tokens });
 ```

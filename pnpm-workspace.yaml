@@ -1,4 +1,5 @@
 packages:
   - "packages/accent-ir"
   - "packages/analyze-contract"
+  - "packages/tts-playground"
   - "apps/analyze-backend"

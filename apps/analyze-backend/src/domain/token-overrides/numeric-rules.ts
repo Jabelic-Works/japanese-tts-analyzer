@@ -1,4 +1,4 @@
-import { splitKanaIntoMoras, type UniDicRawToken } from "@ssml-utilities/accent-ir";
+import { splitKanaIntoMoras, type UniDicRawToken } from "@japanese-tts-analyzer/accent-ir";
 import type { ParsedNumericSpan, TokenOverrideMatch } from "./types.js";
 import {
   createSyntheticToken,

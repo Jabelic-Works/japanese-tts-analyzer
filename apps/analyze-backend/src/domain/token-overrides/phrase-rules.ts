@@ -1,4 +1,4 @@
-import type { UniDicRawToken } from "@ssml-utilities/accent-ir";
+import type { UniDicRawToken } from "@japanese-tts-analyzer/accent-ir";
 import type { TokenOverrideMatch } from "./types.js";
 import { createSyntheticToken, normalizeKanaReading } from "./utils.js";
 

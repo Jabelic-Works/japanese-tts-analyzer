@@ -1,5 +1,5 @@
 {
-  "name": "@ssml-utilities/analyze-contract",
+  "name": "@japanese-tts-analyzer/analyze-contract",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -12,11 +12,11 @@
   "scripts": {
     "build": "tsdown",
     "lint": "eslint src --ext .ts",
-    "type-check": "pnpm --filter @ssml-utilities/accent-ir build && tsc --noEmit",
+    "type-check": "pnpm --filter @japanese-tts-analyzer/accent-ir build && tsc --noEmit",
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ssml-utilities/accent-ir": "workspace:*"
+    "@japanese-tts-analyzer/accent-ir": "workspace:*"
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",

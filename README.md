@@ -8,6 +8,8 @@
   - `AccentIR` と SSML emitter
 - `packages/analyze-contract`
   - analyze API の shared contract
+- `packages/tts-playground`
+  - Azure BYO-credential verification surface と analyze proxy UI
 - `apps/analyze-backend`
   - Cloudflare Containers / Docker 前提の analyze backend
 
@@ -15,6 +17,7 @@
 
 - 自由入力された日本語を本物の `UniDic` で解析する
 - `UniDicRawToken[] -> AccentIR -> Azure SSML` の流れを backend 側で完結させる
+- Azure 音声確認用の playground も同じ repo で運用する
 - 現行の `ssml-utilities` から backend 系を独立 repository として分離する
 
 ## Verification
@@ -38,3 +41,4 @@ pnpm build
 - `accent-ir` は Azure / Google 向けの emitter と `UniDic` adapter を含みます。
 - `analyze-contract` は frontend / backend 間の contract を小さく保つための package です。
 - `analyze-backend` のローカル確認は Docker-first で行う前提です。
+- `tts-playground` は Worker 経由の確認 (`preview:worker`) を前提にします。

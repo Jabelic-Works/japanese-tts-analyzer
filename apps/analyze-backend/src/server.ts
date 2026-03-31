@@ -1,5 +1,5 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import type { AnalyzeErrorResponse } from "@ssml-utilities/analyze-contract";
+import type { AnalyzeErrorResponse } from "@japanese-tts-analyzer/analyze-contract";
 import { handleAnalyzeRoute } from "./routes/analyze.js";
 import type { JsonRouteResponse } from "./routes/http.js";
 import { handleHealthRequest } from "./routes/health.js";
@@ -14,7 +14,7 @@ const server = createServer(async (request, response) => {
 
 server.listen(port, () => {
   console.log(
-    `ssml-utilities-analyze-backend container listening on http://0.0.0.0:${port}`
+    `japanese-tts-analyzer-analyze-backend container listening on http://0.0.0.0:${port}`
   );
 });
 

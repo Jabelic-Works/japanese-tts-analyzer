@@ -1,4 +1,4 @@
-import { adaptUniDicTokensToAccentIR, emitAzureSSML } from "@ssml-utilities/accent-ir";
+import { adaptUniDicTokensToAccentIR, emitAzureSSML } from "@japanese-tts-analyzer/accent-ir";
 import { describe, expect, it } from "vitest";
 import { applyTokenOverrides } from "../token-overrides/index.js";
 import {

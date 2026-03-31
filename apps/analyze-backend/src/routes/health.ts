@@ -4,7 +4,7 @@ export const handleHealthRequest = (): JsonRouteResponse => ({
   status: 200,
   body: {
     status: "ok",
-    service: "ssml-utilities-analyze-backend",
+    service: "japanese-tts-analyzer-analyze-backend",
     runtime: "container",
   },
 });

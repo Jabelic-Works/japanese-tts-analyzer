@@ -1,4 +1,4 @@
-import type { UniDicPartOfSpeech, UniDicRawToken } from "@ssml-utilities/accent-ir";
+import type { UniDicPartOfSpeech, UniDicRawToken } from "@japanese-tts-analyzer/accent-ir";
 
 export interface ComparableToken {
   surface: string;

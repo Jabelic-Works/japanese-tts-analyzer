@@ -2,11 +2,11 @@ import type {
   AnalyzeErrorResponse,
   AnalyzeRequest,
   AnalyzeSuccessResponse,
-} from "@ssml-utilities/analyze-contract";
+} from "@japanese-tts-analyzer/analyze-contract";
 import {
   adaptUniDicTokensToAccentIR,
   emitAzureSSML,
-} from "@ssml-utilities/accent-ir";
+} from "@japanese-tts-analyzer/accent-ir";
 import {
   analyzeTextWithMeCab,
   MeCabExecutionError,

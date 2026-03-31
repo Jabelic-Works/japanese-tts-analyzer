@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { access } from "node:fs/promises";
-import type { UniDicRawToken } from "@ssml-utilities/accent-ir";
+import type { UniDicRawToken } from "@japanese-tts-analyzer/accent-ir";
 
 const DEFAULT_MECAB_COMMAND = process.env.MECAB_COMMAND ?? "mecab";
 const DEFAULT_MECABRC = process.env.MECABRC ?? "/etc/mecabrc";

@@ -1,5 +1,5 @@
 {
-  "name": "@ssml-utilities/accent-ir",
+  "name": "@japanese-tts-analyzer/accent-ir",
   "version": "0.1.0",
   "description": "AccentIR-based SSML emitters for Azure and Google TTS",
   "main": "./dist/index.cjs",
