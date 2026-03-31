@@ -66,6 +66,14 @@ const SURFACE_OVERRIDES = new Map<string, SurfaceOverride>([
       pronunciation: "ヨクヨ+ウ",
     },
   ],
+  [
+    "閉館時間",
+    {
+      reading: "ヘイカンジカン",
+      pronunciation: "ヘイカンジカン",
+      azurePhoneme: "ヘイカンジカン",
+    },
+  ],
 ]);
 
 const PHRASE_OVERRIDES: readonly PhraseOverride[] = [
