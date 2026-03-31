@@ -41,4 +41,5 @@ pnpm build
 - `accent-ir` は Azure / Google 向けの emitter と `UniDic` adapter を含みます。
 - `analyze-contract` は frontend / backend 間の contract を小さく保つための package です。
 - `analyze-backend` のローカル確認は Docker-first で行う前提です。
+- repo root から `pnpm backend:local` を実行すると local Docker backend を起動でき、`Ctrl-C` で停止できます。
 - `tts-playground` は Worker 経由の確認 (`preview:worker`) を前提にします。

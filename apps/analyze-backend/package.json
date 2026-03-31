@@ -8,6 +8,7 @@
     "type-check": "pnpm --filter @japanese-tts-analyzer/accent-ir build && pnpm run generate-types && tsc -p tsconfig.worker.json --noEmit && tsc -p tsconfig.node.json --noEmit",
     "build:container": "tsdown",
     "build": "pnpm --filter @japanese-tts-analyzer/accent-ir build && pnpm run type-check && pnpm run build:container",
+    "docker:local": "bash ./scripts/docker-local.sh",
     "lint": "eslint .",
     "test": "pnpm --filter @japanese-tts-analyzer/accent-ir build && vitest run",
     "preview": "pnpm run build && wrangler dev",
