@@ -316,6 +316,28 @@ export const regressionCases: readonly AnalyzeRegressionCase[] = [
     expectedAzureSSMLBody: phoneme("抑揚", "ヨクヨ+ウ"),
   },
   {
+    id: "lexicon-heikan-jikan",
+    description: "lexicon: 閉館時間の Azure phoneme を固定する",
+    rawTokens: [
+      rawToken({
+        surface: "閉館時間",
+        reading: "ヘイカンジカン",
+        pronunciation: "ヘイカンジカン",
+        partOfSpeech: NOUN_GENERAL,
+      }),
+    ],
+    expectedOverrideTokens: [
+      {
+        surface: "閉館時間",
+        reading: "ヘイカンジカン",
+        pronunciation: "ヘイカンジカン",
+        partOfSpeech: NOUN_GENERAL,
+        azurePhoneme: "ヘイカンジカン",
+      },
+    ],
+    expectedAzureSSMLBody: phoneme("閉館時間", "ヘイカンジカン"),
+  },
+  {
     id: "phrase-ohayo-gozaimasu",
     description: "phrase: おはようございます を 1 発話単位に束ねる",
     rawTokens: [
