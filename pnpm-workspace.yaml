@@ -1,0 +1,4 @@
+packages:
+  - "packages/accent-ir"
+  - "packages/analyze-contract"
+  - "apps/analyze-backend"

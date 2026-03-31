@@ -1,0 +1,50 @@
+name: CI
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --prefer-frozen-lockfile
+
+      - name: Verify accent-ir
+        run: |
+          pnpm --filter @ssml-utilities/accent-ir build
+          pnpm --filter @ssml-utilities/accent-ir test
+          pnpm --filter @ssml-utilities/accent-ir type-check
+
+      - name: Verify analyze-contract
+        run: |
+          pnpm --filter @ssml-utilities/analyze-contract build
+          pnpm --filter @ssml-utilities/analyze-contract lint
+          pnpm --filter @ssml-utilities/analyze-contract type-check
+
+      - name: Verify analyze-backend
+        run: |
+          pnpm --filter @ssml-utilities/analyze-backend test
+          pnpm --filter @ssml-utilities/analyze-backend lint
+          pnpm --filter @ssml-utilities/analyze-backend type-check
+          pnpm --filter @ssml-utilities/analyze-backend build
