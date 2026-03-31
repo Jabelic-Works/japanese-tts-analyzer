@@ -25,6 +25,8 @@ export interface AccentIRSample {
   accentIR: AccentIR;
 }
 
+export type AnalyzeBackendMode = "mock" | "proxy" | "unknown";
+
 export const SAMPLE_CASES: readonly AccentIRSample[] = [
   {
     id: "hashi-chopsticks",
@@ -187,6 +189,16 @@ export const readErrorMessage = async (response: Response): Promise<string> => {
 
 export const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
+
+export const readAnalyzeBackendMode = (response: Response): AnalyzeBackendMode => {
+  const mode = response.headers.get("x-analyze-backend-mode");
+
+  if (mode === "mock" || mode === "proxy") {
+    return mode;
+  }
+
+  return "unknown";
+};
 
 export const readAnalyzeResponse = (
   payload: unknown

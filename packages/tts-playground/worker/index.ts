@@ -28,6 +28,10 @@ interface PlaygroundWorkerEnv {
   ANALYZE_API_TOKEN?: string;
 }
 
+type AnalyzeBackendMode = "mock" | "proxy";
+
+const ANALYZE_BACKEND_MODE_HEADER = "X-Analyze-Backend-Mode";
+
 const worker = {
   async fetch(request: Request, env: PlaygroundWorkerEnv): Promise<Response> {
     const url = new URL(request.url);
@@ -48,7 +52,9 @@ const worker = {
       }
 
       if (env.ANALYZE_API_BASE_URL?.trim()) {
-        return withCors(await proxyAnalyzeRequest(request, env));
+        return withCors(
+          withAnalyzeBackendMode(await proxyAnalyzeRequest(request, env), "proxy")
+        );
       }
 
       const payload: unknown = await request.json();
@@ -70,7 +76,10 @@ const worker = {
       }
 
       return withCors(
-        Response.json(createAnalyzeResponse({ text, locale, voice, includeDebug }))
+        withAnalyzeBackendMode(
+          Response.json(createAnalyzeResponse({ text, locale, voice, includeDebug })),
+          "mock"
+        )
       );
     }
 
@@ -250,6 +259,20 @@ const proxyAnalyzeRequest = async (
 const copyResponse = (response: Response): Response => {
   const headers = new Headers(response.headers);
   headers.set("Cache-Control", headers.get("Cache-Control") ?? "no-store");
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+};
+
+const withAnalyzeBackendMode = (
+  response: Response,
+  mode: AnalyzeBackendMode
+): Response => {
+  const headers = new Headers(response.headers);
+  headers.set(ANALYZE_BACKEND_MODE_HEADER, mode);
 
   return new Response(response.body, {
     status: response.status,
@@ -520,6 +543,7 @@ const SAMPLE_RESPONSES = {
 const withCors = (response: Response): Response => {
   const headers = new Headers(response.headers);
   headers.set("Access-Control-Allow-Origin", "*");
+  headers.set("Access-Control-Expose-Headers", ANALYZE_BACKEND_MODE_HEADER);
 
   return new Response(response.body, {
     status: response.status,
