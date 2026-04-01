@@ -49,7 +49,7 @@ pnpm --filter @japanese-tts-analyzer/analyze-backend build
 ### 2. Docker image を作成
 
 ```bash
-docker build -t japanese-tts-analyzer-analyze-backend-local -f apps/analyze-backend/Dockerfile apps/analyze-backend
+docker build -t japanese-tts-analyzer-analyze-backend-local -f apps/analyze-backend/Dockerfile .
 ```
 
 ### 3. backend を起動

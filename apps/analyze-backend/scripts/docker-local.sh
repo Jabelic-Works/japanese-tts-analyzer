@@ -45,7 +45,7 @@ echo "Building analyze-backend..."
 pnpm -r --filter @japanese-tts-analyzer/analyze-backend... build
 
 echo "Building Docker image ${IMAGE_NAME}..."
-docker build -t "${IMAGE_NAME}" -f "${APP_DIR}/Dockerfile" "${APP_DIR}"
+docker build -t "${IMAGE_NAME}" -f "${APP_DIR}/Dockerfile" "${REPO_ROOT}"
 
 cleanup
 
