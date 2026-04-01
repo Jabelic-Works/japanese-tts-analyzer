@@ -21,9 +21,10 @@ import { ref } from "vue";
 
 type SynthesisStatus = "idle" | "submitting" | "success" | "error";
 type PlaygroundMode = "sample" | "free-text";
+const DEFAULT_REGION = "japaneast";
 
 const subscriptionKey = ref(readSessionValue(SESSION_KEYS.subscriptionKey));
-const region = ref(readSessionValue(SESSION_KEYS.region));
+const region = ref(readSessionValue(SESSION_KEYS.region, DEFAULT_REGION));
 const voice = ref(readSessionValue(SESSION_KEYS.voice, DEFAULT_VOICE));
 const outputFormat = ref(
   readSessionValue(SESSION_KEYS.outputFormat, DEFAULT_OUTPUT_FORMAT)
@@ -95,12 +96,12 @@ const handleLoadSample = () => {
 
 const handleClearCredentials = () => {
   subscriptionKey.value = "";
-  region.value = "";
+  region.value = DEFAULT_REGION;
   voice.value = DEFAULT_VOICE;
   outputFormat.value = DEFAULT_OUTPUT_FORMAT;
 
   writeSessionValue(SESSION_KEYS.subscriptionKey, "");
-  writeSessionValue(SESSION_KEYS.region, "");
+  writeSessionValue(SESSION_KEYS.region, DEFAULT_REGION);
   writeSessionValue(SESSION_KEYS.voice, DEFAULT_VOICE);
   writeSessionValue(SESSION_KEYS.outputFormat, DEFAULT_OUTPUT_FORMAT);
 };
@@ -235,7 +236,7 @@ const handleAnalyzeText = async () => {
           <span>Region</span>
           <input
             :value="region"
-            placeholder="japaneast"
+            :placeholder="DEFAULT_REGION"
             @input="handleRegionInput"
           />
         </label>
