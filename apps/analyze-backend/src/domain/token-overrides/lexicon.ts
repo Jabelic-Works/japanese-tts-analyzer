@@ -15,6 +15,9 @@ interface PhraseOverride {
   reading: string;
   pronunciation: string;
   partOfSpeech: UniDicRawToken["partOfSpeech"];
+  azurePhoneme?: string;
+  azureTrailingSubAlias?: string;
+  preventParticleMerge?: boolean;
 }
 
 const SURFACE_OVERRIDES = new Map<string, SurfaceOverride>([
@@ -95,6 +98,17 @@ const PHRASE_OVERRIDES: readonly PhraseOverride[] = [
       level2: "一般",
     },
   },
+  {
+    surfaces: ["閉館", "時間"],
+    reading: "ヘイカンジカン",
+    pronunciation: "ヘイカンジカン",
+    partOfSpeech: {
+      level1: "名詞",
+      level2: "普通名詞",
+      level3: "一般",
+    },
+    azurePhoneme: "ヘイカンジカン",
+  },
 ] as const;
 
 export const matchPhraseOverride = (
@@ -118,6 +132,9 @@ export const matchPhraseOverride = (
           pronunciation: override.pronunciation,
           sourceTokens: tokens.slice(index, index + override.surfaces.length),
           partOfSpeech: override.partOfSpeech,
+          azurePhoneme: override.azurePhoneme,
+          azureTrailingSubAlias: override.azureTrailingSubAlias,
+          preventParticleMerge: override.preventParticleMerge,
         }),
       ],
       nextIndex: index + override.surfaces.length,

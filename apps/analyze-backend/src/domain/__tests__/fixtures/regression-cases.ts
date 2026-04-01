@@ -320,10 +320,18 @@ export const regressionCases: readonly AnalyzeRegressionCase[] = [
     description: "lexicon: 閉館時間の Azure phoneme を固定する",
     rawTokens: [
       rawToken({
-        surface: "閉館時間",
-        reading: "ヘイカンジカン",
-        pronunciation: "ヘイカンジカン",
-        partOfSpeech: NOUN_GENERAL,
+        surface: "閉館",
+        reading: "ヘイカン",
+        pronunciation: "ヘーカン",
+        partOfSpeech: NOUN_SAHEN,
+        accentType: "0",
+      }),
+      rawToken({
+        surface: "時間",
+        reading: "ジカン",
+        pronunciation: "ジカン",
+        partOfSpeech: NOUN_COUNTER,
+        accentType: "0",
       }),
     ],
     expectedOverrideTokens: [

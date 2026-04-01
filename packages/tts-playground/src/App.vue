@@ -5,9 +5,11 @@ import {
   type UniDicRawToken,
 } from "@japanese-tts-analyzer/accent-ir";
 import {
+  type AnalyzeBackendMode,
   buildSampleSSML,
   DEFAULT_OUTPUT_FORMAT,
   DEFAULT_VOICE,
+  readAnalyzeBackendMode,
   readAnalyzeResponse,
   readErrorMessage,
   readSessionValue,
@@ -40,6 +42,7 @@ const mode = ref<PlaygroundMode>("sample");
 const freeText = ref("");
 const latestAccentIR = ref<AccentIR | null>(null);
 const latestRawTokens = ref<UniDicRawToken[] | null>(null);
+const analyzeBackendMode = ref<AnalyzeBackendMode>("unknown");
 
 const replaceAudioUrl = (nextAudioUrl: string | null) => {
   if (audioUrl.value) {
@@ -52,6 +55,7 @@ const replaceAudioUrl = (nextAudioUrl: string | null) => {
 const resetAnalyzeOutputs = () => {
   latestAccentIR.value = null;
   latestRawTokens.value = null;
+  analyzeBackendMode.value = "unknown";
 };
 
 const handleSubscriptionKeyInput = (event: Event) => {
@@ -155,6 +159,7 @@ const handleAnalyzeText = async () => {
 
   status.value = "submitting";
   statusText.value = "Analyze API に送信しています...";
+  analyzeBackendMode.value = "unknown";
 
   try {
     const response = await fetch("/api/analyze", {
@@ -169,8 +174,10 @@ const handleAnalyzeText = async () => {
         includeDebug: true,
       }),
     });
+    const responseBackendMode = readAnalyzeBackendMode(response);
 
     if (!response.ok) {
+      analyzeBackendMode.value = responseBackendMode;
       status.value = "error";
       statusText.value = await readErrorMessage(response);
       return;
@@ -178,6 +185,7 @@ const handleAnalyzeText = async () => {
 
     const payload = readAnalyzeResponse(await response.json());
 
+    analyzeBackendMode.value = responseBackendMode;
     ssml.value = payload.azureSSML;
     generationWarnings.value = payload.warnings;
     latestAccentIR.value = payload.accentIR;
@@ -295,6 +303,29 @@ const handleAnalyzeText = async () => {
             {{ status === "submitting" ? "Generating..." : "Send current SSML to Azure" }}
           </button>
         </div>
+      </section>
+
+      <section
+        v-if="mode === 'free-text' && analyzeBackendMode === 'mock'"
+        class="warning-panel"
+      >
+        <strong>Analyze runtime: Worker mock</strong>
+        <p class="helper">
+          この free-text 結果は real analyze-backend ではありません。
+          <code>ANALYZE_API_BASE_URL</code>
+          が未設定のため、未登録テキストは plain text fallback で返ります。
+        </p>
+      </section>
+
+      <section
+        v-if="mode === 'free-text' && analyzeBackendMode === 'proxy'"
+        class="info-panel"
+      >
+        <strong>Analyze runtime: analyze-backend proxy</strong>
+        <p class="helper">
+          free-text analyze は real analyze-backend に接続されています。
+          <code>debug.rawTokens</code> が返る場合は backend 側の UniDic 解析結果です。
+        </p>
       </section>
 
       <section v-if="mode === 'sample'" class="panel action-panel">
@@ -424,6 +455,14 @@ h2 {
   background: #fff7e6;
   padding: 16px;
   border: 1px solid #f0c36d;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.info-panel {
+  background: #eef6ff;
+  padding: 16px;
+  border: 1px solid #9ec5fe;
   border-radius: 12px;
   margin-bottom: 20px;
 }
