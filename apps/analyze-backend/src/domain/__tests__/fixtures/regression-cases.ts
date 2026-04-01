@@ -10,6 +10,7 @@ export interface ComparableToken {
   azurePhoneme?: string;
   azureSubAlias?: string;
   azureTrailingSubAlias?: string;
+  preventParticleMerge?: boolean;
 }
 
 export interface AnalyzeRegressionCase {
@@ -115,6 +116,7 @@ export const toComparableToken = (token: UniDicRawToken): ComparableToken => ({
   ...(token.ttsHints?.azureTrailingSubAlias
     ? { azureTrailingSubAlias: token.ttsHints.azureTrailingSubAlias }
     : {}),
+  ...(token.ttsHints?.preventParticleMerge ? { preventParticleMerge: true } : {}),
 });
 
 export const regressionCases: readonly AnalyzeRegressionCase[] = [
@@ -283,6 +285,7 @@ export const regressionCases: readonly AnalyzeRegressionCase[] = [
         pronunciation: "ヨーコー",
         partOfSpeech: NOUN_GENERAL,
         azurePhoneme: "ヨゥコ++ウ",
+        preventParticleMerge: true,
       },
       {
         surface: "を",
@@ -344,6 +347,215 @@ export const regressionCases: readonly AnalyzeRegressionCase[] = [
       },
     ],
     expectedAzureSSMLBody: phoneme("閉館時間", "ヘイカンジカン"),
+  },
+  {
+    id: "lexicon-okai-wasure-no",
+    description: "lexicon: お買い忘れの の Azure phoneme を固定する",
+    rawTokens: [
+      rawToken({
+        surface: "お",
+        reading: "オ",
+        pronunciation: "オ",
+        partOfSpeech: PREFIX,
+      }),
+      rawToken({
+        surface: "買い",
+        reading: "カイ",
+        pronunciation: "カイ",
+        partOfSpeech: VERB_GENERAL,
+        accentType: "0",
+      }),
+      rawToken({
+        surface: "忘れ",
+        reading: "ワスレ",
+        pronunciation: "ワスレ",
+        partOfSpeech: {
+          level1: "動詞",
+          level2: "非自立可能",
+        },
+        accentType: "0",
+      }),
+      rawToken({
+        surface: "の",
+        reading: "ノ",
+        pronunciation: "ノ",
+        partOfSpeech: PARTICLE_CASE,
+      }),
+      rawToken({
+        surface: "ない",
+        reading: "ナイ",
+        pronunciation: "ナイ",
+        partOfSpeech: {
+          level1: "形容詞",
+          level2: "非自立可能",
+        },
+        accentType: "1",
+      }),
+      rawToken({
+        surface: "よう",
+        reading: "ヨウ",
+        pronunciation: "ヨー",
+        partOfSpeech: {
+          level1: "形状詞",
+          level2: "助動詞語幹",
+        },
+        accentType: "1",
+      }),
+    ],
+    expectedOverrideTokens: [
+      {
+        surface: "お買い忘れの",
+        reading: "オカイワスレノ",
+        pronunciation: "オカイ''ワスレノ+",
+        partOfSpeech: NOUN_GENERAL,
+        azurePhoneme: "オカイ''ワスレノ+",
+        preventParticleMerge: true,
+      },
+      {
+        surface: "ない",
+        reading: "ナイ",
+        pronunciation: "ナイ",
+        partOfSpeech: {
+          level1: "形容詞",
+          level2: "非自立可能",
+        },
+        accentType: "1",
+      },
+      {
+        surface: "よう",
+        reading: "ヨウ",
+        pronunciation: "ヨー",
+        partOfSpeech: {
+          level1: "形状詞",
+          level2: "助動詞語幹",
+        },
+        accentType: "1",
+      },
+    ],
+    expectedAzureSSMLBody:
+      `${phoneme("お買い忘れの", "オカイ''ワスレノ+")}` + "ないよう",
+  },
+  {
+    id: "lexicon-onsei-gosei-dewa",
+    description: "lexicon: 音声合成では の Azure phoneme を固定する",
+    rawTokens: [
+      rawToken({
+        surface: "音声",
+        reading: "オンセイ",
+        pronunciation: "オンセー",
+        partOfSpeech: NOUN_GENERAL,
+        accentType: "1",
+      }),
+      rawToken({
+        surface: "合成",
+        reading: "ゴウセイ",
+        pronunciation: "ゴーセー",
+        partOfSpeech: NOUN_SAHEN,
+        accentType: "0",
+      }),
+      rawToken({
+        surface: "で",
+        reading: "デ",
+        pronunciation: "デ",
+        partOfSpeech: PARTICLE_CASE,
+      }),
+      rawToken({
+        surface: "は",
+        reading: "ハ",
+        pronunciation: "ワ",
+        partOfSpeech: {
+          level1: "助詞",
+          level2: "係助詞",
+        },
+      }),
+    ],
+    expectedOverrideTokens: [
+      {
+        surface: "音声合成",
+        reading: "オンセイゴウセイ",
+        pronunciation: "オンセイゴウセイ",
+        partOfSpeech: NOUN_GENERAL,
+        azurePhoneme: "オンセイゴウセイ",
+        preventParticleMerge: true,
+      },
+      {
+        surface: "で",
+        reading: "デ",
+        pronunciation: "デ",
+        partOfSpeech: PARTICLE_CASE,
+      },
+      {
+        surface: "は",
+        reading: "ハ",
+        pronunciation: "ワ",
+        partOfSpeech: {
+          level1: "助詞",
+          level2: "係助詞",
+        },
+      },
+    ],
+    expectedAzureSSMLBody: `${phoneme("音声合成", "オンセイゴウセイ")}では`,
+  },
+  {
+    id: "lexicon-go-fumei-na-ten-ga",
+    description: "lexicon: ご不明な点が の Azure phoneme を固定する",
+    rawTokens: [
+      rawToken({
+        surface: "ご",
+        reading: "ゴ",
+        pronunciation: "ゴ",
+        partOfSpeech: PREFIX,
+      }),
+      rawToken({
+        surface: "不明",
+        reading: "フメイ",
+        pronunciation: "フメー",
+        partOfSpeech: {
+          level1: "名詞",
+          level2: "普通名詞",
+          level3: "形状詞可能",
+        },
+        accentType: "0",
+      }),
+      rawToken({
+        surface: "な",
+        reading: "ナ",
+        pronunciation: "ナ",
+        partOfSpeech: {
+          level1: "助動詞",
+        },
+      }),
+      rawToken({
+        surface: "点",
+        reading: "テン",
+        pronunciation: "テン",
+        partOfSpeech: NOUN_COUNTER,
+        accentType: "0",
+      }),
+      rawToken({
+        surface: "が",
+        reading: "ガ",
+        pronunciation: "ガ",
+        partOfSpeech: PARTICLE_CASE,
+      }),
+    ],
+    expectedOverrideTokens: [
+      {
+        surface: "ご不明な点",
+        reading: "ゴフメイナテン",
+        pronunciation: "ゴフメイナテン",
+        partOfSpeech: NOUN_GENERAL,
+        azurePhoneme: "ゴフメイナテン",
+        preventParticleMerge: true,
+      },
+      {
+        surface: "が",
+        reading: "ガ",
+        pronunciation: "ガ",
+        partOfSpeech: PARTICLE_CASE,
+      },
+    ],
+    expectedAzureSSMLBody: `${phoneme("ご不明な点", "ゴフメイナテン")}が`,
   },
   {
     id: "phrase-ohayo-gozaimasu",

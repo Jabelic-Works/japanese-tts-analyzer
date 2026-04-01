@@ -99,6 +99,42 @@ const PHRASE_OVERRIDES: readonly PhraseOverride[] = [
     },
   },
   {
+    surfaces: ["お", "買い", "忘れ", "の"],
+    reading: "オカイワスレノ",
+    pronunciation: "オカイ''ワスレノ+",
+    partOfSpeech: {
+      level1: "名詞",
+      level2: "普通名詞",
+      level3: "一般",
+    },
+    azurePhoneme: "オカイ''ワスレノ+",
+    preventParticleMerge: true,
+  },
+  {
+    surfaces: ["音声", "合成"],
+    reading: "オンセイゴウセイ",
+    pronunciation: "オンセイゴウセイ",
+    partOfSpeech: {
+      level1: "名詞",
+      level2: "普通名詞",
+      level3: "一般",
+    },
+    azurePhoneme: "オンセイゴウセイ",
+    preventParticleMerge: true,
+  },
+  {
+    surfaces: ["ご", "不明", "な", "点"],
+    reading: "ゴフメイナテン",
+    pronunciation: "ゴフメイナテン",
+    partOfSpeech: {
+      level1: "名詞",
+      level2: "普通名詞",
+      level3: "一般",
+    },
+    azurePhoneme: "ゴフメイナテン",
+    preventParticleMerge: true,
+  },
+  {
     surfaces: ["閉館", "時間"],
     reading: "ヘイカンジカン",
     pronunciation: "ヘイカンジカン",
