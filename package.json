@@ -2,7 +2,7 @@
   "name": "japanese-tts-analyzer",
   "private": true,
   "scripts": {
-    "build": "pnpm --filter @japanese-tts-analyzer/accent-ir build && pnpm --filter @japanese-tts-analyzer/analyze-contract build && pnpm --filter @japanese-tts-analyzer/tts-playground build && pnpm --filter @japanese-tts-analyzer/analyze-backend build",
+    "build": "pnpm -r --workspace-concurrency=1 build",
     "test": "pnpm --filter @japanese-tts-analyzer/accent-ir test && pnpm --filter @japanese-tts-analyzer/analyze-backend test",
     "lint": "pnpm --filter @japanese-tts-analyzer/analyze-contract lint && pnpm --filter @japanese-tts-analyzer/tts-playground lint && pnpm --filter @japanese-tts-analyzer/analyze-backend lint",
     "type-check": "pnpm --filter @japanese-tts-analyzer/accent-ir type-check && pnpm --filter @japanese-tts-analyzer/analyze-contract type-check && pnpm --filter @japanese-tts-analyzer/tts-playground type-check && pnpm --filter @japanese-tts-analyzer/analyze-backend type-check",
