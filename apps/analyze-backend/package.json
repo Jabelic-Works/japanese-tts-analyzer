@@ -14,7 +14,7 @@
     "deploy": "pnpm run build && wrangler deploy"
   },
   "dependencies": {
-    "@cloudflare/containers": "^0.2.0",
+    "@cloudflare/containers": "^0.2.2",
     "@japanese-tts-analyzer/accent-ir": "workspace:*",
     "@japanese-tts-analyzer/analyze-contract": "workspace:*"
   },
@@ -23,7 +23,7 @@
     "@types/node": "^25.5.0",
     "eslint": "^9.35.0",
     "globals": "^17.4.0",
-    "tsdown": "^0.21.6",
+    "tsdown": "^0.21.7",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.57.2",
     "vitest": "^4.1.2",
