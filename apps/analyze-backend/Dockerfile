@@ -17,8 +17,10 @@ RUN apt-get update \
     unidic-mecab \
   && rm -rf /var/lib/apt/lists/*
 
-COPY package.json ./package.json
-COPY dist ./dist
+COPY apps/analyze-backend/package.json ./package.json
+COPY apps/analyze-backend/dist ./dist
+COPY packages/accent-ir/package.json ./node_modules/@japanese-tts-analyzer/accent-ir/package.json
+COPY packages/accent-ir/dist ./node_modules/@japanese-tts-analyzer/accent-ir/dist
 
 EXPOSE 8080
 

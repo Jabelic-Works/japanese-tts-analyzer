@@ -27,6 +27,17 @@ pnpm --filter @japanese-tts-analyzer/analyze-backend preview
 `wrangler dev` でも起動できますが、Apple Silicon 環境では Cloudflare Containers の local dev が不安定なことがあります。  
 まずは Docker 直起動で確認するのを推奨します。
 
+repo root では次の script が最短です。
+
+```bash
+pnpm backend:local
+```
+
+`Ctrl-C` で container を停止できます。  
+同名の local container が残っている場合も、起動前に自動で掃除します。
+
+### 手動で確認したい場合
+
 ### 1. backend を build
 
 repo root で実行します。
@@ -38,7 +49,7 @@ pnpm --filter @japanese-tts-analyzer/analyze-backend build
 ### 2. Docker image を作成
 
 ```bash
-docker build -t japanese-tts-analyzer-analyze-backend-local -f apps/analyze-backend/Dockerfile apps/analyze-backend
+docker build -t japanese-tts-analyzer-analyze-backend-local -f apps/analyze-backend/Dockerfile .
 ```
 
 ### 3. backend を起動
