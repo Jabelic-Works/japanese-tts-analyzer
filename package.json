@@ -6,7 +6,7 @@
     "test": "pnpm --filter @japanese-tts-analyzer/accent-ir test && pnpm --filter @japanese-tts-analyzer/analyze-backend test",
     "lint": "pnpm --filter @japanese-tts-analyzer/analyze-contract lint && pnpm --filter @japanese-tts-analyzer/tts-playground lint && pnpm --filter @japanese-tts-analyzer/analyze-backend lint",
     "type-check": "pnpm --filter @japanese-tts-analyzer/accent-ir type-check && pnpm --filter @japanese-tts-analyzer/analyze-contract type-check && pnpm --filter @japanese-tts-analyzer/tts-playground type-check && pnpm --filter @japanese-tts-analyzer/analyze-backend type-check",
-    "dev": "pnpm --filter @japanese-tts-analyzer/tts-playground preview:worker",
+    "dev": "bash ./scripts/dev-local.sh",
     "backend:local": "bash ./apps/analyze-backend/scripts/docker-local.sh",
     "clean": "pnpm --filter @japanese-tts-analyzer/accent-ir clean && pnpm --filter @japanese-tts-analyzer/analyze-contract clean && pnpm --filter @japanese-tts-analyzer/tts-playground clean && pnpm --filter @japanese-tts-analyzer/analyze-backend clean",
     "changeset": "changeset",

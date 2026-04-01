@@ -18,6 +18,8 @@ pnpm --filter @japanese-tts-analyzer/tts-playground build
 
 Azure TTS verification surface は Worker 経由で `/api/azure/synthesize` に送信します。
 
+repo root から起動する場合は、`pnpm dev` が一時 `.dev.vars` を作り、`ANALYZE_API_BASE_URL=http://localhost:8789` を付けて Worker を起動します。
+
 ```bash
 pnpm --filter @japanese-tts-analyzer/tts-playground preview:worker
 ```
