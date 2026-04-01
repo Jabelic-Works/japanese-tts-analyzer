@@ -19,7 +19,6 @@ pnpm --filter @japanese-tts-analyzer/analyze-backend build
 pnpm --filter @japanese-tts-analyzer/analyze-backend test
 pnpm --filter @japanese-tts-analyzer/analyze-backend lint
 pnpm --filter @japanese-tts-analyzer/analyze-backend type-check
-pnpm --filter @japanese-tts-analyzer/analyze-backend docker:local
 pnpm --filter @japanese-tts-analyzer/analyze-backend preview
 ```
 

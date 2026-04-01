@@ -4,6 +4,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 APP_DIR="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+REPO_ROOT="$(cd -- "${APP_DIR}/../.." && pwd)"
 
 IMAGE_NAME="${ANALYZE_BACKEND_LOCAL_IMAGE:-japanese-tts-analyzer-analyze-backend-local}"
 CONTAINER_NAME="${ANALYZE_BACKEND_LOCAL_CONTAINER:-japanese-tts-analyzer-analyze-backend-local}"
@@ -38,13 +39,13 @@ handle_stop_signal() {
 trap cleanup EXIT
 trap handle_stop_signal INT TERM
 
-cd "${APP_DIR}"
+cd "${REPO_ROOT}"
 
 echo "Building analyze-backend..."
-pnpm run build
+pnpm -r --filter @japanese-tts-analyzer/analyze-backend... build
 
 echo "Building Docker image ${IMAGE_NAME}..."
-docker build -t "${IMAGE_NAME}" -f Dockerfile .
+docker build -t "${IMAGE_NAME}" -f "${APP_DIR}/Dockerfile" "${APP_DIR}"
 
 cleanup
 
