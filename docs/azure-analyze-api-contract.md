@@ -29,7 +29,8 @@ POST /analyze
   "text": "箸を持つ。",
   "locale": "ja-JP",
   "voice": "ja-JP-NanamiNeural",
-  "includeDebug": true
+  "includeDebug": true,
+  "azurePhonemeAlphabet": "sapi"
 }
 ```
 
@@ -43,6 +44,8 @@ POST /analyze
   Azure SSML を生成する際の hint。音声生成そのものは別 request に分かれてもよい
 - `includeDebug`: optional boolean
   `rawTokens` や内部 warning を返すかどうか
+- `azurePhonemeAlphabet`: optional string
+  `sapi` または `ipa`。既定値は `sapi`
 
 ### TypeScript sketch
 
@@ -52,6 +55,7 @@ interface AnalyzeRequest {
   locale?: string
   voice?: string
   includeDebug?: boolean
+  azurePhonemeAlphabet?: "sapi" | "ipa"
 }
 ```
 

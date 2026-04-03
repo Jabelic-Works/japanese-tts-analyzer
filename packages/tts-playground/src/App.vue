@@ -4,11 +4,14 @@ import {
   type AccentIREmitWarning,
   type UniDicRawToken,
 } from "@japanese-tts-analyzer/accent-ir";
+import type { AnalyzeAzurePhonemeAlphabet } from "@japanese-tts-analyzer/analyze-contract";
 import {
   type AnalyzeBackendMode,
   buildSampleSSML,
+  DEFAULT_AZURE_PHONEME_ALPHABET,
   DEFAULT_OUTPUT_FORMAT,
   DEFAULT_VOICE,
+  readAzurePhonemeAlphabet,
   readAnalyzeBackendMode,
   readAnalyzeResponse,
   readErrorMessage,
@@ -29,10 +32,19 @@ const voice = ref(readSessionValue(SESSION_KEYS.voice, DEFAULT_VOICE));
 const outputFormat = ref(
   readSessionValue(SESSION_KEYS.outputFormat, DEFAULT_OUTPUT_FORMAT)
 );
+const azurePhonemeAlphabet = ref<AnalyzeAzurePhonemeAlphabet>(
+  readAzurePhonemeAlphabet(
+    readSessionValue(
+      SESSION_KEYS.azurePhonemeAlphabet,
+      DEFAULT_AZURE_PHONEME_ALPHABET
+    )
+  )
+);
 const selectedSampleId = ref(SAMPLE_CASES[0].id);
 const initialSample = buildSampleSSML(
   SAMPLE_CASES[0].id,
-  voice.value || DEFAULT_VOICE
+  voice.value || DEFAULT_VOICE,
+  azurePhonemeAlphabet.value
 );
 const ssml = ref(initialSample.ssml);
 const generationWarnings = ref<AccentIREmitWarning[]>(initialSample.warnings);
@@ -53,9 +65,20 @@ const replaceAudioUrl = (nextAudioUrl: string | null) => {
   audioUrl.value = nextAudioUrl;
 };
 
-const resetAnalyzeOutputs = () => {
-  latestAccentIR.value = null;
-  latestRawTokens.value = null;
+const applySampleResult = () => {
+  const result = buildSampleSSML(
+    selectedSampleId.value,
+    voice.value || DEFAULT_VOICE,
+    azurePhonemeAlphabet.value
+  );
+
+  ssml.value = result.ssml;
+  generationWarnings.value = result.warnings;
+  status.value = "idle";
+  statusText.value = "";
+  replaceAudioUrl(null);
+  latestAccentIR.value = result.accentIR;
+  latestRawTokens.value = [...result.rawTokens];
   analyzeBackendMode.value = "unknown";
 };
 
@@ -83,15 +106,20 @@ const handleOutputFormatChange = (event: Event) => {
   writeSessionValue(SESSION_KEYS.outputFormat, value);
 };
 
-const handleLoadSample = () => {
-  const result = buildSampleSSML(selectedSampleId.value, voice.value || DEFAULT_VOICE);
+const handleAzurePhonemeAlphabetChange = (event: Event) => {
+  const value = readAzurePhonemeAlphabet(
+    (event.target as HTMLSelectElement).value
+  );
+  azurePhonemeAlphabet.value = value;
+  writeSessionValue(SESSION_KEYS.azurePhonemeAlphabet, value);
 
-  ssml.value = result.ssml;
-  generationWarnings.value = result.warnings;
-  status.value = "idle";
-  statusText.value = "";
-  replaceAudioUrl(null);
-  resetAnalyzeOutputs();
+  if (mode.value === "sample") {
+    applySampleResult();
+  }
+};
+
+const handleLoadSample = () => {
+  applySampleResult();
 };
 
 const handleClearCredentials = () => {
@@ -99,11 +127,16 @@ const handleClearCredentials = () => {
   region.value = DEFAULT_REGION;
   voice.value = DEFAULT_VOICE;
   outputFormat.value = DEFAULT_OUTPUT_FORMAT;
+  azurePhonemeAlphabet.value = DEFAULT_AZURE_PHONEME_ALPHABET;
 
   writeSessionValue(SESSION_KEYS.subscriptionKey, "");
   writeSessionValue(SESSION_KEYS.region, DEFAULT_REGION);
   writeSessionValue(SESSION_KEYS.voice, DEFAULT_VOICE);
   writeSessionValue(SESSION_KEYS.outputFormat, DEFAULT_OUTPUT_FORMAT);
+  writeSessionValue(
+    SESSION_KEYS.azurePhonemeAlphabet,
+    DEFAULT_AZURE_PHONEME_ALPHABET
+  );
 };
 
 const handleSynthesize = async () => {
@@ -173,6 +206,7 @@ const handleAnalyzeText = async () => {
         locale: "ja-JP",
         voice: voice.value || DEFAULT_VOICE,
         includeDebug: true,
+        azurePhonemeAlphabet: azurePhonemeAlphabet.value,
       }),
     });
     const responseBackendMode = readAnalyzeBackendMode(response);
@@ -247,6 +281,16 @@ const handleAnalyzeText = async () => {
             :placeholder="DEFAULT_VOICE"
             @input="handleVoiceInput"
           />
+        </label>
+        <label class="field">
+          <span>Azure phoneme</span>
+          <select
+            :value="azurePhonemeAlphabet"
+            @change="handleAzurePhonemeAlphabetChange"
+          >
+            <option value="sapi">SAPI</option>
+            <option value="ipa">IPA</option>
+          </select>
         </label>
         <label class="field">
           <span>Output Format</span>
