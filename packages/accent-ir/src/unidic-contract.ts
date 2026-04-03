@@ -51,10 +51,16 @@ export interface UniDicRawToken {
 
 export type UniDicAzureHintMode = "auto" | "explicit-only";
 
+export interface UniDicAzurePhonemeMode {
+  alphabet: "ipa";
+  unit: "contentPlusParticles";
+}
+
 export interface UniDicAccentIRAdapterInput {
   locale?: string;
   tokens: readonly UniDicRawToken[];
   azureHintMode?: UniDicAzureHintMode;
+  azurePhonemeMode?: UniDicAzurePhonemeMode;
 }
 
 export interface UniDicAccentIRAdapterWarning {

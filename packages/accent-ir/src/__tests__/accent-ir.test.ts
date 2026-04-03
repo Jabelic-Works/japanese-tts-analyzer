@@ -142,6 +142,30 @@ describe("AccentIR emitters", () => {
       );
     });
 
+    it("ipa alphabet の azurePhoneme hint もそのまま出力する", () => {
+      const accentIR: AccentIR = {
+        segments: [
+          {
+            type: "text",
+            text: "箸を",
+            hints: {
+              azurePhoneme: {
+                alphabet: "ipa",
+                value: "ˈha.ɕi.o",
+              },
+            },
+          },
+        ],
+      };
+
+      const result = emitAzureSSML(accentIR);
+
+      expect(result.warnings).toEqual([]);
+      expect(result.ssml).toBe(
+        '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="ja-JP"><phoneme alphabet="ipa" ph="ˈha.ɕi.o">箸を</phoneme></speak>'
+      );
+    });
+
     it("azureSubAlias hint があれば sub alias で出力する", () => {
       const accentIR: AccentIR = {
         segments: [

@@ -146,6 +146,80 @@ describe("UniDic adapter", () => {
     ]);
   });
 
+  it("ipa mode では助詞連結後の segment から ipa hint を組み立てる", () => {
+    const tokens: UniDicRawToken[] = [
+      {
+        surface: "箸",
+        reading: "ハシ",
+        pronunciation: "ハシ",
+        partOfSpeech: {
+          level1: "名詞",
+          level2: "普通名詞",
+          level3: "一般",
+        },
+        accent: {
+          accentType: "1",
+        },
+      },
+      {
+        surface: "を",
+        reading: "ヲ",
+        pronunciation: "オ",
+        partOfSpeech: {
+          level1: "助詞",
+          level2: "格助詞",
+        },
+      },
+      {
+        surface: "持つ",
+        reading: "モツ",
+        pronunciation: "モツ",
+        partOfSpeech: {
+          level1: "動詞",
+          level2: "一般",
+        },
+        accent: {
+          accentType: "1",
+        },
+      },
+    ];
+
+    const result = adaptUniDicTokensToAccentIR({
+      tokens,
+      azurePhonemeMode: {
+        alphabet: "ipa",
+        unit: "contentPlusParticles",
+      },
+    });
+
+    expect(result.accentIR.segments).toEqual([
+      {
+        type: "text",
+        text: "箸を",
+        reading: "はしを",
+        accent: { downstep: 1 },
+        hints: {
+          azurePhoneme: {
+            alphabet: "ipa",
+            value: "ˈha.ɕi.o",
+          },
+        },
+      },
+      {
+        type: "text",
+        text: "持つ",
+        reading: "もつ",
+        accent: { downstep: 1 },
+        hints: {
+          azurePhoneme: {
+            alphabet: "ipa",
+            value: "ˈmo.tsɯ",
+          },
+        },
+      },
+    ]);
+  });
+
   it("azureTrailingSubAlias hint がある token には助詞を連結しない", () => {
     const tokens: UniDicRawToken[] = [
       {
@@ -262,6 +336,55 @@ describe("UniDic adapter", () => {
         type: "text",
         text: "を",
         reading: "を",
+      },
+    ]);
+  });
+
+  it("ipa mode でも explicit Azure hint がある segment は上書きしない", () => {
+    const tokens: UniDicRawToken[] = [
+      {
+        surface: "要件",
+        reading: "ヨウケン",
+        pronunciation: "ヨ+ウケ'ン",
+        partOfSpeech: {
+          level1: "名詞",
+          level2: "普通名詞",
+          level3: "一般",
+        },
+        accent: {
+          accentType: "3,0",
+        },
+        ttsHints: {
+          azurePhoneme: {
+            alphabet: "sapi",
+            value: "ヨ+++ウケ'",
+          },
+          azureTrailingSubAlias: "ン",
+        },
+      },
+    ];
+
+    const result = adaptUniDicTokensToAccentIR({
+      tokens,
+      azurePhonemeMode: {
+        alphabet: "ipa",
+        unit: "contentPlusParticles",
+      },
+    });
+
+    expect(result.accentIR.segments).toEqual([
+      {
+        type: "text",
+        text: "要件",
+        reading: "ようけん",
+        accent: { downstep: 3 },
+        hints: {
+          azurePhoneme: {
+            alphabet: "sapi",
+            value: "ヨ+++ウケ'",
+          },
+          azureTrailingSubAlias: "ん",
+        },
       },
     ]);
   });

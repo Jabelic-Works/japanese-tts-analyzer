@@ -11,10 +11,14 @@ import type {
   UniDicAccentIRAdapterResult,
   UniDicAccentIRAdapterWarning,
   UniDicAzureHintMode,
+  UniDicAzurePhonemeMode,
   UniDicRawToken,
 } from "./unidic-contract";
 import { toHiragana } from "./kana";
-import { appendAzureHintToSegment } from "./unidic-azure-hints";
+import {
+  appendAzureHintToSegment,
+  buildAzureIpaPhonemeHintFromUniDicTokens,
+} from "./unidic-azure-hints";
 
 // MVP adapter only. This does not execute MeCab or load UniDic dictionaries.
 // It converts already-normalized UniDicRawToken arrays into AccentIR.
@@ -55,6 +59,7 @@ export const adaptUniDicTokensToAccentIR = (
 ): UniDicAccentIRAdapterResult => {
   const warnings: UniDicAccentIRAdapterWarning[] = [];
   const segments: AccentIRSegment[] = [];
+  const segmentSourceTokens: UniDicRawToken[][] = [];
   const azureHintMode = input.azureHintMode ?? "auto";
 
   for (const [tokenIndex, token] of input.tokens.entries()) {
@@ -63,6 +68,7 @@ export const adaptUniDicTokensToAccentIR = (
         type: "break",
         strength: "strong",
       });
+      segmentSourceTokens.push([]);
       continue;
     }
 
@@ -75,6 +81,7 @@ export const adaptUniDicTokensToAccentIR = (
     ) {
       const lastSegment = segments[segments.length - 1] as AccentIRTextSegment;
       mergeParticleIntoSegment(lastSegment, token, azureHintMode);
+      segmentSourceTokens[segmentSourceTokens.length - 1]?.push(token);
       continue;
     }
 
@@ -85,7 +92,15 @@ export const adaptUniDicTokensToAccentIR = (
       azureHintMode
     );
     segments.push(segment);
+    segmentSourceTokens.push([token]);
   }
+
+  applyAzurePhonemeModeToSegments(
+    segments,
+    segmentSourceTokens,
+    input.azurePhonemeMode,
+    azureHintMode
+  );
 
   return {
     accentIR: {
@@ -194,6 +209,59 @@ const shouldAppendAutomaticAzureHint = (
   segment: AccentIRTextSegment,
   azureHintMode: UniDicAzureHintMode
 ): boolean => Boolean(segment.hints?.azurePhoneme) || azureHintMode !== "explicit-only";
+
+const applyAzurePhonemeModeToSegments = (
+  segments: AccentIRSegment[],
+  segmentSourceTokens: readonly (readonly UniDicRawToken[])[],
+  azurePhonemeMode: UniDicAzurePhonemeMode | undefined,
+  azureHintMode: UniDicAzureHintMode
+): void => {
+  if (!azurePhonemeMode || azureHintMode === "explicit-only") {
+    return;
+  }
+
+  if (
+    azurePhonemeMode.alphabet !== "ipa" ||
+    azurePhonemeMode.unit !== "contentPlusParticles"
+  ) {
+    return;
+  }
+
+  for (const [segmentIndex, segment] of segments.entries()) {
+    if (segment.type !== "text") {
+      continue;
+    }
+
+    const sourceTokens = segmentSourceTokens[segmentIndex] ?? [];
+    if (hasExplicitAzureOverride(sourceTokens)) {
+      continue;
+    }
+
+    const ipaHint = buildAzureIpaPhonemeHintFromUniDicTokens(
+      sourceTokens,
+      segment.accent
+    );
+    if (!ipaHint) {
+      continue;
+    }
+
+    segment.hints = {
+      ...segment.hints,
+      azurePhoneme: ipaHint,
+    };
+  }
+};
+
+const hasExplicitAzureOverride = (
+  tokens: readonly UniDicRawToken[]
+): boolean =>
+  tokens.some((token) =>
+    Boolean(
+      token.ttsHints?.azurePhoneme ||
+        token.ttsHints?.azureSubAlias ||
+        token.ttsHints?.azureTrailingSubAlias
+    )
+  );
 
 const parseAccent = (
   token: UniDicRawToken,
