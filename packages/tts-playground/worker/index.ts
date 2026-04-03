@@ -1,25 +1,20 @@
 import type {
-  AccentIR,
-  AccentIREmitWarning,
-  UniDicRawToken,
-} from "@japanese-tts-analyzer/accent-ir";
-import type {
+  AnalyzeAzurePhonemeAlphabet,
   AnalyzeErrorResponse,
   AnalyzeSuccessResponse,
 } from "@japanese-tts-analyzer/analyze-contract";
+import {
+  buildAzureSampleResult,
+  DEFAULT_AZURE_PHONEME_ALPHABET,
+  findSampleCaseByText,
+} from "../src/sample-support";
 
 interface AnalyzeInput {
   text: string;
   locale: string;
   voice: string;
   includeDebug: boolean;
-}
-
-interface SampleAnalyzeResponse {
-  accentIR: AccentIR;
-  azureBody: string;
-  warnings: AccentIREmitWarning[];
-  rawTokens: UniDicRawToken[];
+  azurePhonemeAlphabet: AnalyzeAzurePhonemeAlphabet;
 }
 
 interface PlaygroundWorkerEnv {
@@ -68,6 +63,10 @@ const worker = {
           ? analyzeRequest.voice
           : "ja-JP-NanamiNeural";
       const includeDebug = Boolean(analyzeRequest?.includeDebug);
+      const azurePhonemeAlphabet =
+        analyzeRequest?.azurePhonemeAlphabet === "ipa"
+          ? "ipa"
+          : DEFAULT_AZURE_PHONEME_ALPHABET;
 
       if (!text) {
         return withCors(
@@ -77,7 +76,15 @@ const worker = {
 
       return withCors(
         withAnalyzeBackendMode(
-          Response.json(createAnalyzeResponse({ text, locale, voice, includeDebug })),
+          Response.json(
+            createAnalyzeResponse({
+              text,
+              locale,
+              voice,
+              includeDebug,
+              azurePhonemeAlphabet,
+            })
+          ),
           "mock"
         )
       );
@@ -290,19 +297,25 @@ const createAnalyzeResponse = ({
   locale,
   voice,
   includeDebug,
+  azurePhonemeAlphabet,
 }: AnalyzeInput): AnalyzeSuccessResponse => {
-  const sample = Object.prototype.hasOwnProperty.call(SAMPLE_RESPONSES, text)
-    ? SAMPLE_RESPONSES[text as keyof typeof SAMPLE_RESPONSES]
-    : undefined;
+  const sample = findSampleCaseByText(text);
 
   if (sample) {
+    const result = buildAzureSampleResult({
+      tokens: sample.tokens,
+      locale,
+      voice,
+      azurePhonemeAlphabet,
+    });
+
     return {
       text,
       locale,
-      accentIR: sample.accentIR,
-      azureSSML: wrapWithVoice(sample.azureBody, locale, voice),
-      warnings: sample.warnings,
-      ...(includeDebug ? { debug: { rawTokens: sample.rawTokens } } : {}),
+      accentIR: result.accentIR,
+      azureSSML: result.ssml,
+      warnings: result.warnings,
+      ...(includeDebug ? { debug: { rawTokens: [...result.rawTokens] } } : {}),
     };
   }
 
@@ -345,200 +358,6 @@ const escapeXml = (value: string): string =>
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
-
-const SAMPLE_RESPONSES = {
-  箸: {
-    accentIR: {
-      locale: "ja-JP",
-      segments: [
-        {
-          type: "text",
-          text: "箸",
-          reading: "はし",
-          accent: { downstep: 1 },
-          hints: {
-            azurePhoneme: {
-              alphabet: "sapi",
-              value: "ハ'シ",
-            },
-          },
-        },
-      ],
-    },
-    azureBody: `<phoneme alphabet="sapi" ph="ハ'シ">箸</phoneme>`,
-    warnings: [],
-    rawTokens: [
-      {
-        surface: "箸",
-        reading: "ハシ",
-        pronunciation: "ハシ",
-        partOfSpeech: {
-          level1: "名詞",
-          level2: "普通名詞",
-          level3: "一般",
-        },
-        accent: {
-          accentType: "1",
-        },
-      },
-    ],
-  },
-  橋: {
-    accentIR: {
-      locale: "ja-JP",
-      segments: [
-        {
-          type: "text",
-          text: "橋",
-          reading: "はし",
-          accent: { downstep: 2 },
-          hints: {
-            azurePhoneme: {
-              alphabet: "sapi",
-              value: "ハシ'",
-            },
-          },
-        },
-      ],
-    },
-    azureBody: `<phoneme alphabet="sapi" ph="ハシ'">橋</phoneme>`,
-    warnings: [],
-    rawTokens: [
-      {
-        surface: "橋",
-        reading: "ハシ",
-        pronunciation: "ハシ",
-        partOfSpeech: {
-          level1: "名詞",
-          level2: "普通名詞",
-          level3: "一般",
-        },
-        accent: {
-          accentType: "2",
-        },
-      },
-    ],
-  },
-  端: {
-    accentIR: {
-      locale: "ja-JP",
-      segments: [
-        {
-          type: "text",
-          text: "端",
-          reading: "はし",
-          accent: { downstep: null },
-          hints: {
-            azurePhoneme: {
-              alphabet: "sapi",
-              value: "ハシ+",
-            },
-          },
-        },
-      ],
-    },
-    azureBody: `<phoneme alphabet="sapi" ph="ハシ+">端</phoneme>`,
-    warnings: [],
-    rawTokens: [
-      {
-        surface: "端",
-        reading: "ハシ",
-        pronunciation: "ハシ",
-        partOfSpeech: {
-          level1: "名詞",
-          level2: "普通名詞",
-          level3: "一般",
-        },
-        accent: {
-          accentType: "0",
-        },
-      },
-    ],
-  },
-  "箸を持つ。": {
-    accentIR: {
-      locale: "ja-JP",
-      segments: [
-        {
-          type: "text",
-          text: "箸を",
-          reading: "はしを",
-          accent: { downstep: 1 },
-          hints: {
-            azurePhoneme: {
-              alphabet: "sapi",
-              value: "ハ'シオ",
-            },
-          },
-        },
-        {
-          type: "text",
-          text: "持つ",
-          reading: "もつ",
-          accent: { downstep: 1 },
-          hints: {
-            azurePhoneme: {
-              alphabet: "sapi",
-              value: "モ'ツ",
-            },
-          },
-        },
-        {
-          type: "break",
-          strength: "strong",
-        },
-      ],
-    },
-    azureBody:
-      `<phoneme alphabet="sapi" ph="ハ'シオ">箸を</phoneme>` +
-      `<phoneme alphabet="sapi" ph="モ'ツ">持つ</phoneme>` +
-      `<break strength="strong"/>`,
-    warnings: [],
-    rawTokens: [
-      {
-        surface: "箸",
-        reading: "ハシ",
-        pronunciation: "ハシ",
-        partOfSpeech: {
-          level1: "名詞",
-          level2: "普通名詞",
-          level3: "一般",
-        },
-        accent: {
-          accentType: "1",
-        },
-      },
-      {
-        surface: "を",
-        reading: "ヲ",
-        pronunciation: "オ",
-        partOfSpeech: {
-          level1: "助詞",
-          level2: "格助詞",
-        },
-      },
-      {
-        surface: "持つ",
-        reading: "モツ",
-        pronunciation: "モツ",
-        partOfSpeech: {
-          level1: "動詞",
-          level2: "一般",
-        },
-        accent: {
-          accentType: "1",
-        },
-      },
-      {
-        surface: "。",
-        partOfSpeech: {
-          level1: "補助記号",
-          level2: "句点",
-        },
-      },
-    ],
-  },
-} satisfies Record<string, SampleAnalyzeResponse>;
 
 const withCors = (response: Response): Response => {
   const headers = new Headers(response.headers);

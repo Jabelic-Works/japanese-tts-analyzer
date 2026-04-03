@@ -1,13 +1,20 @@
 import {
-  emitAzureSSML,
   type AccentIR,
   type AccentIREmitWarning,
   type UniDicRawToken,
 } from "@japanese-tts-analyzer/accent-ir";
 import type {
+  AnalyzeAzurePhonemeAlphabet,
   AnalyzeErrorResponse,
   AnalyzeSuccessResponse,
 } from "@japanese-tts-analyzer/analyze-contract";
+import {
+  buildAzureSampleResult,
+  DEFAULT_AZURE_PHONEME_ALPHABET,
+  findSampleCaseById,
+} from "./sample-support";
+
+export { DEFAULT_AZURE_PHONEME_ALPHABET, SAMPLE_CASES } from "./sample-support";
 
 export const DEFAULT_VOICE = "ja-JP-NanamiNeural";
 export const DEFAULT_OUTPUT_FORMAT = "audio-24khz-48kbitrate-mono-mp3";
@@ -17,110 +24,10 @@ export const SESSION_KEYS = {
   region: "azure-region",
   voice: "azure-voice",
   outputFormat: "azure-output-format",
+  azurePhonemeAlphabet: "azure-phoneme-alphabet",
 } as const;
 
-export interface AccentIRSample {
-  id: string;
-  label: string;
-  accentIR: AccentIR;
-}
-
 export type AnalyzeBackendMode = "mock" | "proxy" | "unknown";
-
-export const SAMPLE_CASES: readonly AccentIRSample[] = [
-  {
-    id: "hashi-chopsticks",
-    label: "箸 (1型)",
-    accentIR: {
-      segments: [
-        {
-          type: "text",
-          text: "箸",
-          reading: "はし",
-          accent: { downstep: 1 },
-          hints: {
-            azurePhoneme: {
-              alphabet: "sapi",
-              value: "ハ'シ",
-            },
-          },
-        },
-      ],
-    },
-  },
-  {
-    id: "hashi-bridge",
-    label: "橋 (2型)",
-    accentIR: {
-      segments: [
-        {
-          type: "text",
-          text: "橋",
-          reading: "はし",
-          accent: { downstep: 2 },
-          hints: {
-            azurePhoneme: {
-              alphabet: "sapi",
-              value: "ハシ'",
-            },
-          },
-        },
-      ],
-    },
-  },
-  {
-    id: "hashi-edge",
-    label: "端 (平板)",
-    accentIR: {
-      segments: [
-        {
-          type: "text",
-          text: "端",
-          reading: "はし",
-          accent: { downstep: null },
-          hints: {
-            azurePhoneme: {
-              alphabet: "sapi",
-              value: "ハシ+",
-            },
-          },
-        },
-      ],
-    },
-  },
-  {
-    id: "hashi-wo-motsu",
-    label: "箸を持つ",
-    accentIR: {
-      segments: [
-        {
-          type: "text",
-          text: "箸を",
-          reading: "はしを",
-          accent: { downstep: 1 },
-          hints: {
-            azurePhoneme: {
-              alphabet: "sapi",
-              value: "ハ'シオ",
-            },
-          },
-        },
-        {
-          type: "text",
-          text: "持つ",
-          reading: "もつ",
-          accent: { downstep: 1 },
-          hints: {
-            azurePhoneme: {
-              alphabet: "sapi",
-              value: "モ'ツ",
-            },
-          },
-        },
-      ],
-    },
-  },
-] as const;
 
 export const readSessionValue = (key: string, fallback = ""): string => {
   if (typeof window === "undefined") {
@@ -143,20 +50,33 @@ export const writeSessionValue = (key: string, value: string): void => {
   window.sessionStorage.removeItem(key);
 };
 
+export const readAzurePhonemeAlphabet = (
+  value: string
+): AnalyzeAzurePhonemeAlphabet =>
+  value === "ipa" ? "ipa" : DEFAULT_AZURE_PHONEME_ALPHABET;
+
 export const buildSampleSSML = (
   sampleId: string,
-  voice: string
-): { ssml: string; warnings: AccentIREmitWarning[] } => {
-  const sample =
-    SAMPLE_CASES.find((candidate) => candidate.id === sampleId) ?? SAMPLE_CASES[0];
-
-  const result = emitAzureSSML(sample.accentIR, {
+  voice: string,
+  azurePhonemeAlphabet: AnalyzeAzurePhonemeAlphabet
+): {
+  accentIR: AccentIR;
+  ssml: string;
+  warnings: AccentIREmitWarning[];
+  rawTokens: readonly UniDicRawToken[];
+} => {
+  const sample = findSampleCaseById(sampleId);
+  const result = buildAzureSampleResult({
+    tokens: sample.tokens,
     voice: voice || DEFAULT_VOICE,
+    azurePhonemeAlphabet,
   });
 
   return {
+    accentIR: result.accentIR,
     ssml: result.ssml,
     warnings: result.warnings,
+    rawTokens: result.rawTokens,
   };
 };
 

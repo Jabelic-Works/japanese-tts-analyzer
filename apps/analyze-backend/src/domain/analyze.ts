@@ -16,6 +16,7 @@ import { applyTokenOverrides } from "./token-overrides/index.js";
 
 const DEFAULT_LOCALE = "ja-JP";
 const DEFAULT_VOICE = "ja-JP-NanamiNeural";
+const DEFAULT_AZURE_PHONEME_ALPHABET = "sapi";
 
 interface AnalyzeRequestOk {
   ok: true;
@@ -80,6 +81,11 @@ export const validateAnalyzeRequest = (
       locale: typeof payload.locale === "string" ? payload.locale : DEFAULT_LOCALE,
       voice: typeof payload.voice === "string" ? payload.voice : undefined,
       includeDebug: Boolean(payload.includeDebug),
+      azurePhonemeAlphabet:
+        payload.azurePhonemeAlphabet === "ipa" ||
+        payload.azurePhonemeAlphabet === "sapi"
+          ? payload.azurePhonemeAlphabet
+          : DEFAULT_AZURE_PHONEME_ALPHABET,
     },
   };
 };
@@ -104,6 +110,14 @@ export const analyzeRequest = async (
       locale,
       tokens: analysisTokens,
       azureHintMode: "explicit-only",
+      ...(request.azurePhonemeAlphabet === "ipa"
+        ? {
+            azurePhonemeMode: {
+              alphabet: "ipa" as const,
+              unit: "contentPlusParticles" as const,
+            },
+          }
+        : {}),
     });
     const emitted = emitAzureSSML(adapted.accentIR, {
       locale,

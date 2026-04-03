@@ -4,11 +4,14 @@ import type {
   UniDicRawToken,
 } from "@japanese-tts-analyzer/accent-ir";
 
+export type AnalyzeAzurePhonemeAlphabet = "sapi" | "ipa";
+
 export interface AnalyzeRequest {
   text: string;
   locale?: string;
   voice?: string;
   includeDebug?: boolean;
+  azurePhonemeAlphabet?: AnalyzeAzurePhonemeAlphabet;
 }
 
 export type AnalyzeErrorCode =
