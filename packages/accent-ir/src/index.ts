@@ -298,6 +298,7 @@ export type {
   UniDicAccentIRAdapterWarning,
   UniDicAccentMetadata,
   UniDicAzureHintMode,
+  UniDicAzurePhonemeMode,
   UniDicInflection,
   UniDicPartOfSpeech,
   UniDicRawToken,
@@ -313,6 +314,7 @@ export { splitKanaIntoMoras } from "./kana";
 export type { AzurePhonemeHint } from "./unidic-azure-hints";
 export {
   appendAzureHintToSegment,
+  buildAzureIpaPhonemeHintFromUniDicTokens,
   buildAzurePhonemeHintFromUniDicToken,
   buildAzurePhonemeHintFromUniDicTokens,
 } from "./unidic-azure-hints";

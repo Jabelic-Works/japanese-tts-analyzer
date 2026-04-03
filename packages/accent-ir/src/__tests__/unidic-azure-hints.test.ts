@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildAzureIpaPhonemeHintFromUniDicTokens,
   buildAzurePhonemeHintFromUniDicToken,
   buildAzurePhonemeHintFromUniDicTokens,
 } from "../index";
@@ -74,6 +75,63 @@ describe("UniDic Azure hints", () => {
     expect(buildAzurePhonemeHintFromUniDicTokens(tokens)).toEqual({
       alphabet: "sapi",
       value: "ハ'シオ",
+    });
+  });
+
+  it("token 列から segment 単位の ipa hint を組み立てる", () => {
+    const tokens: UniDicRawToken[] = [
+      {
+        surface: "箸",
+        reading: "ハシ",
+        pronunciation: "ハシ",
+        partOfSpeech: {
+          level1: "名詞",
+          level2: "普通名詞",
+        },
+        accent: {
+          accentType: "1",
+        },
+      },
+      {
+        surface: "を",
+        reading: "ヲ",
+        pronunciation: "オ",
+        partOfSpeech: {
+          level1: "助詞",
+          level2: "格助詞",
+        },
+      },
+    ];
+
+    expect(
+      buildAzureIpaPhonemeHintFromUniDicTokens(tokens, {
+        downstep: 1,
+      })
+    ).toEqual({
+      alphabet: "ipa",
+      value: "ˈha.ɕi.o",
+    });
+  });
+
+  it("長音を含む pronunciation から ipa hint を組み立てる", () => {
+    const tokens: UniDicRawToken[] = [
+      {
+        surface: "東京",
+        reading: "トウキョウ",
+        pronunciation: "トーキョー",
+        partOfSpeech: {
+          level1: "名詞",
+          level2: "固有名詞",
+        },
+        accent: {
+          accentType: "0",
+        },
+      },
+    ];
+
+    expect(buildAzureIpaPhonemeHintFromUniDicTokens(tokens)).toEqual({
+      alphabet: "ipa",
+      value: "toː.kjoː",
     });
   });
 });
