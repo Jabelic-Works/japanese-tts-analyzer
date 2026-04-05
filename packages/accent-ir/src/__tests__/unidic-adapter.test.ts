@@ -468,6 +468,148 @@ describe("UniDic adapter", () => {
     ]);
   });
 
+  it("読点を medium break segment に変換する", () => {
+    const tokens: UniDicRawToken[] = [
+      {
+        surface: "東京",
+        reading: "トウキョウ",
+        pronunciation: "トーキョー",
+        partOfSpeech: {
+          level1: "名詞",
+          level2: "固有名詞",
+          level3: "地名",
+        },
+        accent: {
+          accentType: "0",
+        },
+      },
+      {
+        surface: "、",
+        partOfSpeech: {
+          level1: "補助記号",
+          level2: "読点",
+        },
+      },
+      {
+        surface: "橋",
+        reading: "ハシ",
+        pronunciation: "ハシ",
+        partOfSpeech: {
+          level1: "名詞",
+          level2: "普通名詞",
+          level3: "一般",
+        },
+        accent: {
+          accentType: "2",
+        },
+      },
+    ];
+
+    const result = adaptUniDicTokensToAccentIR({ tokens });
+
+    expect(result.accentIR.segments).toEqual([
+      {
+        type: "text",
+        text: "東京",
+        reading: "とうきょう",
+        accent: { downstep: null },
+        hints: {
+          azurePhoneme: {
+            alphabet: "sapi",
+            value: "トーキョー+",
+          },
+        },
+      },
+      {
+        type: "break",
+        strength: "medium",
+      },
+      {
+        type: "text",
+        text: "橋",
+        reading: "はし",
+        accent: { downstep: 2 },
+        hints: {
+          azurePhoneme: {
+            alphabet: "sapi",
+            value: "ハシ'",
+          },
+        },
+      },
+    ]);
+  });
+
+  it("文中の句点を strong break segment に変換する", () => {
+    const tokens: UniDicRawToken[] = [
+      {
+        surface: "東京",
+        reading: "トウキョウ",
+        pronunciation: "トーキョー",
+        partOfSpeech: {
+          level1: "名詞",
+          level2: "固有名詞",
+          level3: "地名",
+        },
+        accent: {
+          accentType: "0",
+        },
+      },
+      {
+        surface: "。",
+        partOfSpeech: {
+          level1: "補助記号",
+          level2: "句点",
+        },
+      },
+      {
+        surface: "橋",
+        reading: "ハシ",
+        pronunciation: "ハシ",
+        partOfSpeech: {
+          level1: "名詞",
+          level2: "普通名詞",
+          level3: "一般",
+        },
+        accent: {
+          accentType: "2",
+        },
+      },
+    ];
+
+    const result = adaptUniDicTokensToAccentIR({ tokens });
+
+    expect(result.accentIR.segments).toEqual([
+      {
+        type: "text",
+        text: "東京",
+        reading: "とうきょう",
+        accent: { downstep: null },
+        hints: {
+          azurePhoneme: {
+            alphabet: "sapi",
+            value: "トーキョー+",
+          },
+        },
+      },
+      {
+        type: "break",
+        strength: "strong",
+      },
+      {
+        type: "text",
+        text: "橋",
+        reading: "はし",
+        accent: { downstep: 2 },
+        hints: {
+          azurePhoneme: {
+            alphabet: "sapi",
+            value: "ハシ'",
+          },
+        },
+      },
+    ]);
+  });
+
   it("文末の句点を break segment に変換する", () => {
     const tokens: UniDicRawToken[] = [
       {
