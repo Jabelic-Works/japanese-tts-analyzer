@@ -83,18 +83,12 @@ curl -s http://localhost:8789/analyze \
 
 ## tts-playground から繋ぐ
 
-`packages/tts-playground/.dev.vars` に次を設定します。
-
-```dotenv
-ANALYZE_API_BASE_URL=http://localhost:8789
-# ANALYZE_API_TOKEN=optional-shared-token
-```
-
 次に `tts-playground` を Worker 経由で起動します。
 
 ```bash
-pnpm --filter @japanese-tts-analyzer/tts-playground build
-pnpm --filter @japanese-tts-analyzer/tts-playground exec wrangler dev --port 8790
+cd packages/tts-playground
+pnpm run build
+pnpm exec wrangler dev --port 8790 --var ANALYZE_API_BASE_URL:http://localhost:8789
 ```
 
 ブラウザで `http://localhost:8790` を開くと、`/api/analyze` が local backend に proxy されます。
