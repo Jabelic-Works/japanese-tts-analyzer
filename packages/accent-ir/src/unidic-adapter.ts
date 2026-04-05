@@ -23,7 +23,8 @@ import {
 // MVP adapter only. This does not execute MeCab or load UniDic dictionaries.
 // It converts already-normalized UniDicRawToken arrays into AccentIR.
 
-const SENTENCE_ENDING_PUNCTUATION = new Set(["。", "！", "!", "？", "?"]);
+const STRONG_BREAK_PUNCTUATION = new Set(["。", "！", "!", "？", "?"]);
+const MEDIUM_BREAK_PUNCTUATION = new Set(["、", "，", ","]);
 const ATTACHABLE_PARTICLE_SURFACES = new Set([
   "を",
   "に",
@@ -63,12 +64,12 @@ export const adaptUniDicTokensToAccentIR = (
   const azureHintMode = input.azureHintMode ?? "auto";
 
   for (const [tokenIndex, token] of input.tokens.entries()) {
-    if (isSentenceEndingPauseToken(token, tokenIndex, input.tokens)) {
-      segments.push({
-        type: "break",
-        strength: "strong",
-      });
-      segmentSourceTokens.push([]);
+    const punctuationBreak = createPunctuationBreakSegment(token);
+    if (punctuationBreak) {
+      if (!isLastSegmentBreak(segments)) {
+        segments.push(punctuationBreak);
+        segmentSourceTokens.push([]);
+      }
       continue;
     }
 
@@ -293,19 +294,39 @@ const isAttachableParticle = (token: UniDicRawToken): boolean =>
   token.partOfSpeech.level1 === "助詞" &&
   ATTACHABLE_PARTICLE_SURFACES.has(token.surface);
 
-const isSentenceEndingPauseToken = (
-  token: UniDicRawToken,
-  tokenIndex: number,
-  tokens: readonly UniDicRawToken[]
-): boolean =>
-  token.partOfSpeech.level1 === "補助記号" &&
-  SENTENCE_ENDING_PUNCTUATION.has(token.surface) &&
-  tokenIndex === tokens.length - 1;
+const createPunctuationBreakSegment = (
+  token: UniDicRawToken
+): AccentIRBreakSegment | undefined => {
+  if (token.partOfSpeech.level1 !== "補助記号") {
+    return undefined;
+  }
+
+  if (STRONG_BREAK_PUNCTUATION.has(token.surface)) {
+    return {
+      type: "break",
+      strength: "strong",
+    };
+  }
+
+  if (MEDIUM_BREAK_PUNCTUATION.has(token.surface)) {
+    return {
+      type: "break",
+      strength: "medium",
+    };
+  }
+
+  return undefined;
+};
 
 const isLastSegmentText = (
   segments: readonly AccentIRSegment[]
 ): segments is readonly [...AccentIRSegment[], AccentIRTextSegment] =>
   segments.length > 0 && segments[segments.length - 1]?.type === "text";
+
+const isLastSegmentBreak = (
+  segments: readonly AccentIRSegment[]
+): segments is readonly [...AccentIRSegment[], AccentIRBreakSegment] =>
+  segments.length > 0 && segments[segments.length - 1]?.type === "break";
 
 const canMergeAttachableParticleIntoSegment = (
   segment: AccentIRTextSegment
