@@ -8,13 +8,17 @@ import {
   matchMinuteExpression,
   matchPercentExpression,
 } from "./numeric-rules.js";
-import { matchSahenVerbExpression } from "./phrase-rules.js";
+import {
+  matchSahenVerbExpression,
+  matchTeIruVerbExpression,
+} from "./phrase-rules.js";
 import type { TokenOverrideMatch } from "./types.js";
 
 const TOKEN_OVERRIDE_RULES = [
   matchPhraseOverride,
   matchSurfaceOverride,
   matchSahenVerbExpression,
+  matchTeIruVerbExpression,
   matchHourExpression,
   matchMinuteExpression,
   matchDegreeExpression,

@@ -67,6 +67,11 @@ const PARTICLE_CASE = {
   level2: "格助詞",
 } as const satisfies UniDicPartOfSpeech;
 
+const PARTICLE_CONNECTIVE = {
+  level1: "助詞",
+  level2: "接続助詞",
+} as const satisfies UniDicPartOfSpeech;
+
 const SYMBOL_GENERAL = {
   level1: "補助記号",
   level2: "一般",
@@ -623,6 +628,56 @@ export const regressionCases: readonly AnalyzeRegressionCase[] = [
       },
     ],
     expectedAzureSSMLBody: "終了します",
+  },
+  {
+    id: "phrase-nokotte-imashita",
+    description: "phrase: 動詞 + ていました を 1 発話単位に束ねる",
+    rawTokens: [
+      rawToken({
+        surface: "残っ",
+        reading: "ノコッ",
+        pronunciation: "ノコッ",
+        lemma: "残る",
+        partOfSpeech: VERB_GENERAL,
+      }),
+      rawToken({
+        surface: "て",
+        reading: "テ",
+        pronunciation: "テ",
+        partOfSpeech: PARTICLE_CONNECTIVE,
+      }),
+      rawToken({
+        surface: "い",
+        reading: "イ",
+        pronunciation: "イ",
+        lemma: "居る",
+        partOfSpeech: {
+          level1: "動詞",
+          level2: "非自立可能",
+        },
+      }),
+      rawToken({
+        surface: "まし",
+        reading: "マシ",
+        pronunciation: "マシ",
+        partOfSpeech: AUXILIARY,
+      }),
+      rawToken({
+        surface: "た",
+        reading: "タ",
+        pronunciation: "タ",
+        partOfSpeech: AUXILIARY,
+      }),
+    ],
+    expectedOverrideTokens: [
+      {
+        surface: "残っていました",
+        reading: "ノコッテイマシタ",
+        pronunciation: "ノコッテイマシタ",
+        partOfSpeech: VERB_GENERAL,
+      },
+    ],
+    expectedAzureSSMLBody: "残っていました",
   },
   {
     id: "numeric-current-time-930",
