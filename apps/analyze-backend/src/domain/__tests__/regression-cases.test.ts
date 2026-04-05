@@ -76,4 +76,77 @@ describe("analyze-backend regression cases", () => {
       wrapAzureSSML('<phoneme alphabet="ipa" ph="toː.kjoː">東京</phoneme>')
     );
   });
+
+  it("句の束ね後も ipa mode では 1 phoneme span にまとまる", () => {
+    const overriddenTokens = applyTokenOverrides([
+      {
+        surface: "残っ",
+        reading: "ノコッ",
+        pronunciation: "ノコッ",
+        lemma: "残る",
+        partOfSpeech: {
+          level1: "動詞",
+          level2: "一般",
+        },
+      },
+      {
+        surface: "て",
+        reading: "テ",
+        pronunciation: "テ",
+        partOfSpeech: {
+          level1: "助詞",
+          level2: "接続助詞",
+        },
+      },
+      {
+        surface: "い",
+        reading: "イ",
+        pronunciation: "イ",
+        lemma: "居る",
+        partOfSpeech: {
+          level1: "動詞",
+          level2: "非自立可能",
+        },
+      },
+      {
+        surface: "まし",
+        reading: "マシ",
+        pronunciation: "マシ",
+        partOfSpeech: {
+          level1: "助動詞",
+        },
+      },
+      {
+        surface: "た",
+        reading: "タ",
+        pronunciation: "タ",
+        partOfSpeech: {
+          level1: "助動詞",
+        },
+      },
+    ]);
+
+    const adapted = adaptUniDicTokensToAccentIR({
+      locale: "ja-JP",
+      tokens: overriddenTokens,
+      azureHintMode: "explicit-only",
+      azurePhonemeMode: {
+        alphabet: "ipa",
+        unit: "contentPlusParticles",
+      },
+    });
+    const emitted = emitAzureSSML(adapted.accentIR, {
+      locale: "ja-JP",
+      voice: "ja-JP-NanamiNeural",
+      azureReadingFallback: "plainText",
+    });
+
+    expect(adapted.warnings).toEqual([]);
+    expect(emitted.warnings).toEqual([]);
+    expect(emitted.ssml).toBe(
+      wrapAzureSSML(
+        '<phoneme alphabet="ipa" ph="no.ko.tte.i.ma.ɕi.ta">残っていました</phoneme>'
+      )
+    );
+  });
 });
