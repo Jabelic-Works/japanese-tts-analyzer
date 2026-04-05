@@ -5,30 +5,27 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 PLAYGROUND_DIR="${REPO_ROOT}/packages/tts-playground"
-DEV_VARS_PATH="${PLAYGROUND_DIR}/.dev.vars"
-BACKUP_PATH="${PLAYGROUND_DIR}/.dev.vars.backup"
 ANALYZE_URL="${ANALYZE_API_BASE_URL:-http://localhost:8789}"
+PLAYGROUND_PORT="${PLAYGROUND_PORT:-8790}"
 
-restore_dev_vars() {
-  if [[ -f "${BACKUP_PATH}" ]]; then
-    mv "${BACKUP_PATH}" "${DEV_VARS_PATH}"
-    return
-  fi
+WRANGLER_ARGS=(
+  dev
+  --port
+  "${PLAYGROUND_PORT}"
+  --var
+  "ANALYZE_API_BASE_URL:${ANALYZE_URL}"
+)
 
-  rm -f "${DEV_VARS_PATH}"
-}
-
-trap restore_dev_vars EXIT
-
-rm -f "${BACKUP_PATH}"
-
-if [[ -f "${DEV_VARS_PATH}" ]]; then
-  mv "${DEV_VARS_PATH}" "${BACKUP_PATH}"
+if [[ -n "${ANALYZE_API_TOKEN:-}" ]]; then
+  WRANGLER_ARGS+=(
+    --var
+    "ANALYZE_API_TOKEN:${ANALYZE_API_TOKEN}"
+  )
 fi
 
-printf 'ANALYZE_API_BASE_URL=%s\n' "${ANALYZE_URL}" > "${DEV_VARS_PATH}"
+cd "${PLAYGROUND_DIR}"
 
-cd "${REPO_ROOT}"
-
-echo "Starting tts-playground with ANALYZE_API_BASE_URL=${ANALYZE_URL}"
-pnpm --filter @japanese-tts-analyzer/tts-playground preview:worker
+echo "Starting tts-playground on http://localhost:${PLAYGROUND_PORT}"
+echo "Proxying /api/analyze to ${ANALYZE_URL}"
+pnpm run build
+pnpm exec wrangler "${WRANGLER_ARGS[@]}"

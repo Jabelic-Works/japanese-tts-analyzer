@@ -9,6 +9,10 @@ build/
 # TypeScript
 *.tsbuildinfo
 
+# Generated Wrangler worker types
+apps/analyze-backend/worker-configuration.d.ts
+packages/tts-playground/worker-configuration.d.ts
+
 # Logs
 logs
 *.log

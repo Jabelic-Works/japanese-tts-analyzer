@@ -18,10 +18,10 @@ pnpm --filter @japanese-tts-analyzer/tts-playground build
 
 Azure TTS verification surface は Worker 経由で `/api/azure/synthesize` に送信します。
 
-repo root から起動する場合は、`pnpm dev` が一時 `.dev.vars` を作り、`ANALYZE_API_BASE_URL=http://localhost:8789` を付けて Worker を起動します。
+repo root から起動する場合は、`pnpm dev` が `http://localhost:8790` で Worker を起動し、`ANALYZE_API_BASE_URL=http://localhost:8789` を CLI 引数で注入します。
 
 ```bash
-pnpm --filter @japanese-tts-analyzer/tts-playground preview:worker
+pnpm dev
 ```
 
 free-text analyze を本物の backend に向ける場合は、`packages/tts-playground/.dev.vars` などで次を設定します。
@@ -29,6 +29,13 @@ free-text analyze を本物の backend に向ける場合は、`packages/tts-pla
 ```dotenv
 ANALYZE_API_BASE_URL=https://japanese-tts-analyzer-analyze-backend.<your-subdomain>.workers.dev
 # ANALYZE_API_TOKEN=optional-shared-token
+```
+
+手動で Worker を起動する場合は、port 衝突を避けるため `8790` と `--var` 指定を推奨します。
+
+```bash
+pnpm run build
+pnpm exec wrangler dev --port 8790 --var ANALYZE_API_BASE_URL:http://localhost:8789
 ```
 
 ## Credential の扱い
