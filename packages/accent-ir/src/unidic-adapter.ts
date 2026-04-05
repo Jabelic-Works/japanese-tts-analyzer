@@ -98,8 +98,7 @@ export const adaptUniDicTokensToAccentIR = (
   applyAzurePhonemeModeToSegments(
     segments,
     segmentSourceTokens,
-    input.azurePhonemeMode,
-    azureHintMode
+    input.azurePhonemeMode
   );
 
   return {
@@ -213,10 +212,9 @@ const shouldAppendAutomaticAzureHint = (
 const applyAzurePhonemeModeToSegments = (
   segments: AccentIRSegment[],
   segmentSourceTokens: readonly (readonly UniDicRawToken[])[],
-  azurePhonemeMode: UniDicAzurePhonemeMode | undefined,
-  azureHintMode: UniDicAzureHintMode
+  azurePhonemeMode: UniDicAzurePhonemeMode | undefined
 ): void => {
-  if (!azurePhonemeMode || azureHintMode === "explicit-only") {
+  if (!azurePhonemeMode) {
     return;
   }
 

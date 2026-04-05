@@ -545,6 +545,48 @@ describe("UniDic adapter", () => {
     ]);
   });
 
+  it("explicit-only モードでも ipa mode は segment 単位で適用する", () => {
+    const tokens: UniDicRawToken[] = [
+      {
+        surface: "東京",
+        reading: "トウキョウ",
+        pronunciation: "トーキョー",
+        partOfSpeech: {
+          level1: "名詞",
+          level2: "固有名詞",
+          level3: "地名",
+        },
+        accent: {
+          accentType: "0",
+        },
+      },
+    ];
+
+    const result = adaptUniDicTokensToAccentIR({
+      tokens,
+      azureHintMode: "explicit-only",
+      azurePhonemeMode: {
+        alphabet: "ipa",
+        unit: "contentPlusParticles",
+      },
+    });
+
+    expect(result.accentIR.segments).toEqual([
+      {
+        type: "text",
+        text: "東京",
+        reading: "とうきょう",
+        accent: { downstep: null },
+        hints: {
+          azurePhoneme: {
+            alphabet: "ipa",
+            value: "toː.kjoː",
+          },
+        },
+      },
+    ]);
+  });
+
   it("explicit hint があれば explicit-only モードでも Azure sub alias を保持する", () => {
     const tokens: UniDicRawToken[] = [
       {
