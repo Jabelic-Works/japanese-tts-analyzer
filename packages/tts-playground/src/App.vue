@@ -20,8 +20,6 @@ import {
   NGlobalStyle,
   NGrid,
   NInput,
-  NRadioButton,
-  NRadioGroup,
   NSelect,
   NSpace,
   NStatistic,
@@ -33,7 +31,6 @@ import {
 import { computed, onBeforeUnmount, ref } from "vue";
 import {
   type AnalyzeBackendMode,
-  buildSampleSSML,
   DEFAULT_AZURE_PHONEME_ALPHABET,
   DEFAULT_OUTPUT_FORMAT,
   DEFAULT_VOICE,
@@ -42,13 +39,11 @@ import {
   readAnalyzeResponse,
   readErrorMessage,
   readSessionValue,
-  SAMPLE_CASES,
   SESSION_KEYS,
   writeSessionValue,
 } from "./playground-support";
 
 type SynthesisStatus = "idle" | "submitting" | "success" | "error";
-type PlaygroundMode = "sample" | "free-text";
 type NaiveStatus = "default" | "info" | "success" | "warning" | "error";
 
 const DEFAULT_REGION = "japaneast";
@@ -109,17 +104,6 @@ const phonemeOptions: SelectOption[] = [
   },
 ];
 
-const modeOptions: Array<{ label: string; value: PlaygroundMode }> = [
-  {
-    label: "Sample",
-    value: "sample",
-  },
-  {
-    label: "Free text",
-    value: "free-text",
-  },
-];
-
 const subscriptionKey = ref(readSessionValue(SESSION_KEYS.subscriptionKey));
 const region = ref(readSessionValue(SESSION_KEYS.region, DEFAULT_REGION));
 const voice = ref(readSessionValue(SESSION_KEYS.voice, DEFAULT_VOICE));
@@ -134,49 +118,24 @@ const azurePhonemeAlphabet = ref<AnalyzeAzurePhonemeAlphabet>(
     )
   )
 );
-const selectedSampleId = ref(SAMPLE_CASES[0].id);
-const initialSample = buildSampleSSML(
-  SAMPLE_CASES[0].id,
-  voice.value || DEFAULT_VOICE,
-  azurePhonemeAlphabet.value
-);
-const ssml = ref(initialSample.ssml);
-const generationWarnings = ref<AccentIREmitWarning[]>(initialSample.warnings);
+const ssml = ref("");
+const generationWarnings = ref<AccentIREmitWarning[]>([]);
 const status = ref<SynthesisStatus>("idle");
 const statusText = ref("");
 const audioUrl = ref<string | null>(null);
-const mode = ref<PlaygroundMode>("sample");
 const freeText = ref("");
-const latestAccentIR = ref<AccentIR | null>(initialSample.accentIR);
-const latestRawTokens = ref<UniDicRawToken[] | null>([...initialSample.rawTokens]);
+const latestAccentIR = ref<AccentIR | null>(null);
+const latestRawTokens = ref<UniDicRawToken[] | null>(null);
 const analyzeBackendMode = ref<AnalyzeBackendMode>("unknown");
-const appliedSampleState = ref({
-  sampleId: selectedSampleId.value,
-  voice: voice.value || DEFAULT_VOICE,
-  azurePhonemeAlphabet: azurePhonemeAlphabet.value,
-});
-
-const sampleOptions = computed<SelectOption[]>(() =>
-  SAMPLE_CASES.map((sample) => ({
-    label: sample.label,
-    value: sample.id,
-  }))
-);
-
-const selectedSample = computed(
-  () =>
-    SAMPLE_CASES.find((sample) => sample.id === selectedSampleId.value) ??
-    SAMPLE_CASES[0]
-);
 
 const metrics = computed(() => [
   {
-    label: "Mode",
-    value: mode.value === "sample" ? "Sample mode" : "Free-text mode",
+    label: "Analyze runtime",
+    value: backendModeLabel.value,
   },
   {
-    label: "Samples",
-    value: `${SAMPLE_CASES.length}`,
+    label: "Phoneme",
+    value: azurePhonemeAlphabet.value.toUpperCase(),
   },
   {
     label: "Credentials",
@@ -201,14 +160,6 @@ const accentIRJson = computed(() =>
 );
 const rawTokensJson = computed(() =>
   latestRawTokens.value ? JSON.stringify(latestRawTokens.value, null, 2) : ""
-);
-const sampleComposerDirty = computed(
-  () =>
-    mode.value === "sample" &&
-    (selectedSampleId.value !== appliedSampleState.value.sampleId ||
-      (voice.value || DEFAULT_VOICE) !== appliedSampleState.value.voice ||
-      azurePhonemeAlphabet.value !==
-        appliedSampleState.value.azurePhonemeAlphabet)
 );
 
 const backendModeLabel = computed(() => {
@@ -272,50 +223,12 @@ const statusAlertType = computed<NaiveStatus>(() => {
   }
 });
 
-const modeDescription = computed(() =>
-  mode.value === "sample"
-    ? "AccentIR の固定サンプルから SSML を組み立てて、Voice や音素表記の差分を素早く確認できます。"
-    : "任意の日本語テキストを Analyze API に送り、返ってきた SSML をそのまま Azure に流して確認できます。"
-);
-
-const resultHint = computed(() =>
-  mode.value === "sample"
-    ? "サンプルを読み込むと SSML が更新されます。必要なら直接編集してから Azure に送信できます。"
-    : "Analyze で生成した SSML はこのエディタに入ります。必要なら微調整後に Azure へ送信できます。"
-);
-
 const replaceAudioUrl = (nextAudioUrl: string | null) => {
   if (audioUrl.value) {
     URL.revokeObjectURL(audioUrl.value);
   }
 
   audioUrl.value = nextAudioUrl;
-};
-
-const resetTransientState = () => {
-  status.value = "idle";
-  statusText.value = "";
-  analyzeBackendMode.value = "unknown";
-  replaceAudioUrl(null);
-};
-
-const applySampleResult = () => {
-  const result = buildSampleSSML(
-    selectedSampleId.value,
-    voice.value || DEFAULT_VOICE,
-    azurePhonemeAlphabet.value
-  );
-
-  ssml.value = result.ssml;
-  generationWarnings.value = result.warnings;
-  latestAccentIR.value = result.accentIR;
-  latestRawTokens.value = [...result.rawTokens];
-  appliedSampleState.value = {
-    sampleId: selectedSampleId.value,
-    voice: voice.value || DEFAULT_VOICE,
-    azurePhonemeAlphabet: azurePhonemeAlphabet.value,
-  };
-  resetTransientState();
 };
 
 const updateSubscriptionKey = (value: string) => {
@@ -373,6 +286,12 @@ const handleSynthesize = async () => {
   if (!subscriptionKey.value || !region.value) {
     status.value = "error";
     statusText.value = "Azure の subscription key と region を入力してください。";
+    return;
+  }
+
+  if (!ssml.value.trim()) {
+    status.value = "error";
+    statusText.value = "Analyze で SSML を生成してから Azure に送信してください。";
     return;
   }
 
@@ -547,8 +466,8 @@ onBeforeUnmount(() => {
                   size="large"
                 >
                   <n-text depth="2">
-                    よく触る設定をまとめています。sample mode では Voice と音素表記を変えたあと
-                    「サンプルを SSML に反映」を押すとプレビューが更新されます。
+                    よく触る設定をまとめています。Voice と音素表記を変えたら、Analyze を再実行して
+                    SSML を更新してください。
                   </n-text>
 
                   <n-form
@@ -615,33 +534,15 @@ onBeforeUnmount(() => {
 
               <n-card
                 class="panel-card"
-                title="入力モード"
+                title="Analyze runtime"
                 :bordered="false"
               >
                 <n-space
                   vertical
                   size="large"
                 >
-                  <n-radio-group
-                    v-model:value="mode"
-                    name="playground-mode"
-                    size="large"
-                  >
-                    <n-space
-                      class="mode-switch"
-                      :wrap="false"
-                    >
-                      <n-radio-button
-                        v-for="option in modeOptions"
-                        :key="option.value"
-                        :value="option.value"
-                        :label="option.label"
-                      />
-                    </n-space>
-                  </n-radio-group>
-
                   <n-text depth="2">
-                    {{ modeDescription }}
+                    任意の日本語テキストを Analyze API に送り、返ってきた SSML をそのまま Azure に流して確認します。
                   </n-text>
 
                   <n-card
@@ -649,24 +550,13 @@ onBeforeUnmount(() => {
                     size="small"
                     class="sub-card"
                   >
-                    <template v-if="mode === 'sample'">
-                      <div class="summary-label">
-                        Current sample
-                      </div>
-                      <strong>{{ selectedSample.label }}</strong>
-                      <p class="summary-copy">
-                        {{ selectedSample.analyzeText }}
-                      </p>
-                    </template>
-                    <template v-else>
-                      <div class="summary-label">
-                        Analyze runtime
-                      </div>
-                      <strong>{{ backendModeLabel }}</strong>
-                      <p class="summary-copy">
-                        free-text analyze の接続先をここで確認できます。
-                      </p>
-                    </template>
+                    <div class="summary-label">
+                      Current runtime
+                    </div>
+                    <strong>{{ backendModeLabel }}</strong>
+                    <p class="summary-copy">
+                      free-text analyze の接続先をここで確認できます。
+                    </p>
                   </n-card>
                 </n-space>
               </n-card>
@@ -704,92 +594,33 @@ onBeforeUnmount(() => {
                     </n-tag>
                   </div>
 
-                  <n-alert
-                    v-if="sampleComposerDirty"
-                    type="warning"
-                    title="未反映の sample 設定があります"
+                  <n-form
+                    label-placement="top"
+                    size="large"
                   >
-                    Voice / sample / phoneme の変更はまだ SSML editor に反映されていません。
-                    Azure に送るのは現在の SSML editor の内容です。
-                  </n-alert>
+                    <n-form-item label="Analyze input text">
+                      <n-input
+                        v-model:value="freeText"
+                        type="textarea"
+                        placeholder="ここに自由入力テキストを入れて Analyze します"
+                        :autosize="{ minRows: 7, maxRows: 14 }"
+                      />
+                    </n-form-item>
+                  </n-form>
 
-                  <template v-if="mode === 'sample'">
-                    <n-grid
-                      cols="1 s:1 m:2"
-                      responsive="screen"
-                      :x-gap="16"
-                      :y-gap="16"
-                    >
-                      <n-gi>
-                        <n-form
-                          label-placement="top"
-                          size="large"
-                        >
-                          <n-form-item label="AccentIR sample">
-                            <n-select
-                              v-model:value="selectedSampleId"
-                              filterable
-                              :options="sampleOptions"
-                            />
-                          </n-form-item>
-                        </n-form>
-                      </n-gi>
-
-                      <n-gi>
-                        <n-card
-                          embedded
-                          class="sub-card"
-                          size="small"
-                        >
-                          <div class="summary-label">
-                            Analyze text
-                          </div>
-                          <strong>{{ selectedSample.analyzeText }}</strong>
-                          <p class="summary-copy">
-                            {{ selectedSample.tokens.length }} token を使って SSML を生成します。
-                          </p>
-                        </n-card>
-                      </n-gi>
-                    </n-grid>
-
-                    <n-button
-                      type="primary"
-                      size="large"
-                      @click="applySampleResult"
-                    >
-                      サンプルを SSML に反映
-                    </n-button>
-                  </template>
-
-                  <template v-else>
-                    <n-form
-                      label-placement="top"
-                      size="large"
-                    >
-                      <n-form-item label="Analyze input text">
-                        <n-input
-                          v-model:value="freeText"
-                          type="textarea"
-                          placeholder="ここに自由入力テキストを入れて Analyze します"
-                          :autosize="{ minRows: 7, maxRows: 14 }"
-                        />
-                      </n-form-item>
-                    </n-form>
-
-                    <n-button
-                      type="primary"
-                      size="large"
-                      :loading="isSubmitting"
-                      @click="handleAnalyzeText"
-                    >
-                      Analyze して SSML を生成
-                    </n-button>
-                  </template>
+                  <n-button
+                    type="primary"
+                    size="large"
+                    :loading="isSubmitting"
+                    @click="handleAnalyzeText"
+                  >
+                    Analyze して SSML を生成
+                  </n-button>
                 </n-space>
               </n-card>
 
               <n-alert
-                v-if="mode === 'free-text' && analyzeBackendMode === 'mock'"
+                v-if="analyzeBackendMode === 'mock'"
                 type="warning"
                 title="Worker mock を使用中"
               >
@@ -798,7 +629,7 @@ onBeforeUnmount(() => {
               </n-alert>
 
               <n-alert
-                v-if="mode === 'free-text' && analyzeBackendMode === 'proxy'"
+                v-if="analyzeBackendMode === 'proxy'"
                 type="success"
                 title="analyze-backend proxy に接続中"
               >
@@ -846,7 +677,7 @@ onBeforeUnmount(() => {
                     :show-icon="status !== 'idle'"
                     :title="statusHeading"
                   >
-                    {{ statusText || resultHint }}
+                    {{ statusText || "Analyze で生成した SSML はこの editor に入ります。必要なら微調整後に Azure へ送信できます。" }}
                   </n-alert>
 
                   <div
@@ -906,7 +737,7 @@ onBeforeUnmount(() => {
                       >{{ accentIRJson }}</pre>
                       <n-empty
                         v-else
-                        description="sample を読み込むか free-text analyze を実行してください。"
+                        description="free-text analyze を実行してください。"
                       />
                     </div>
                   </n-collapse-item>
@@ -922,7 +753,7 @@ onBeforeUnmount(() => {
                       >{{ rawTokensJson }}</pre>
                       <n-empty
                         v-else
-                        description="Analyze API かサンプル生成後に表示されます。"
+                        description="Analyze API 実行後に表示されます。"
                       />
                     </div>
                   </n-collapse-item>
@@ -1022,12 +853,6 @@ onBeforeUnmount(() => {
 .metric-shell {
   padding: 16px;
   height: 100%;
-}
-
-.mode-switch {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  width: 100%;
 }
 
 .summary-label {
