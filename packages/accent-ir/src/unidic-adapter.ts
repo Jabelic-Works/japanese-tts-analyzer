@@ -130,6 +130,7 @@ const createTextSegmentFromToken = (
   };
 
   applyAzureHintsToSegment(segment, token, azureHintMode);
+  applyAutomaticAzureTrailingAlias(segment);
 
   return segment;
 };
@@ -162,6 +163,8 @@ const mergeParticleIntoSegment = (
   if (shouldAppendAutomaticAzureHint(segment, azureHintMode)) {
     appendAzureHintToSegment(segment, token);
   }
+
+  applyAutomaticAzureTrailingAlias(segment);
 };
 
 const applyAzureHintsToSegment = (
@@ -209,6 +212,23 @@ const shouldAppendAutomaticAzureHint = (
   segment: AccentIRTextSegment,
   azureHintMode: UniDicAzureHintMode
 ): boolean => Boolean(segment.hints?.azurePhoneme) || azureHintMode !== "explicit-only";
+
+const applyAutomaticAzureTrailingAlias = (
+  segment: AccentIRTextSegment
+): void => {
+  if (
+    !segment.hints?.azurePhoneme ||
+    segment.hints.azureTrailingSubAlias ||
+    !segment.reading?.endsWith("ん")
+  ) {
+    return;
+  }
+
+  segment.hints = {
+    ...segment.hints,
+    azureTrailingSubAlias: "ん",
+  };
+};
 
 const applyAzurePhonemeModeToSegments = (
   segments: AccentIRSegment[],

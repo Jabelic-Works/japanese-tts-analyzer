@@ -145,7 +145,7 @@ export const regressionCases: readonly AnalyzeRegressionCase[] = [
         azurePhoneme: "ハツ+オン+",
       },
     ],
-    expectedAzureSSMLBody: phoneme("発音", "ハツ+オン+"),
+    expectedAzureSSMLBody: phonemeWithTrailingAlias("発音", "ハツ+オン+", "ん"),
   },
   {
     id: "lexicon-moshi",
@@ -351,7 +351,11 @@ export const regressionCases: readonly AnalyzeRegressionCase[] = [
         azurePhoneme: "ヘイカンジカン",
       },
     ],
-    expectedAzureSSMLBody: phoneme("閉館時間", "ヘイカンジカン"),
+    expectedAzureSSMLBody: phonemeWithTrailingAlias(
+      "閉館時間",
+      "ヘイカンジカン",
+      "ん"
+    ),
   },
   {
     id: "lexicon-okai-wasure-no",
@@ -560,7 +564,11 @@ export const regressionCases: readonly AnalyzeRegressionCase[] = [
         partOfSpeech: PARTICLE_CASE,
       },
     ],
-    expectedAzureSSMLBody: `${phoneme("ご不明な点", "ゴフメイナテン")}が`,
+    expectedAzureSSMLBody: `${phonemeWithTrailingAlias(
+      "ご不明な点",
+      "ゴフメイナテン",
+      "ん"
+    )}が`,
   },
   {
     id: "phrase-ohayo-gozaimasu",

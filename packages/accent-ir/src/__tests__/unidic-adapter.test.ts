@@ -220,6 +220,128 @@ describe("UniDic adapter", () => {
     ]);
   });
 
+  it("自動生成した azurePhoneme が ん で終わる場合は trailing alias を付ける", () => {
+    const tokens: UniDicRawToken[] = [
+      {
+        surface: "閉館時間",
+        reading: "ヘイカンジカン",
+        pronunciation: "ヘイカンジカン",
+        partOfSpeech: {
+          level1: "名詞",
+          level2: "普通名詞",
+          level3: "一般",
+        },
+      },
+    ];
+
+    const result = adaptUniDicTokensToAccentIR({ tokens });
+
+    expect(result.accentIR.segments).toEqual([
+      {
+        type: "text",
+        text: "閉館時間",
+        reading: "へいかんじかん",
+        hints: {
+          azurePhoneme: {
+            alphabet: "sapi",
+            value: "ヘイカンジカン",
+          },
+          azureTrailingSubAlias: "ん",
+        },
+      },
+    ]);
+  });
+
+  it("ipa mode でも ん 末尾には trailing alias を付ける", () => {
+    const tokens: UniDicRawToken[] = [
+      {
+        surface: "閉館時間",
+        reading: "ヘイカンジカン",
+        pronunciation: "ヘイカンジカン",
+        partOfSpeech: {
+          level1: "名詞",
+          level2: "普通名詞",
+          level3: "一般",
+        },
+      },
+    ];
+
+    const result = adaptUniDicTokensToAccentIR({
+      tokens,
+      azurePhonemeMode: {
+        alphabet: "ipa",
+        unit: "contentPlusParticles",
+      },
+    });
+
+    expect(result.accentIR.segments).toEqual([
+      {
+        type: "text",
+        text: "閉館時間",
+        reading: "へいかんじかん",
+        hints: {
+          azurePhoneme: {
+            alphabet: "ipa",
+            value: "he.i.ka.ɴ.dʑi.ka.ɴ",
+          },
+          azureTrailingSubAlias: "ん",
+        },
+      },
+    ]);
+  });
+
+  it("自動 trailing alias が付いた token には助詞を連結しない", () => {
+    const tokens: UniDicRawToken[] = [
+      {
+        surface: "発音",
+        reading: "ハツオン",
+        pronunciation: "ハツオン",
+        partOfSpeech: {
+          level1: "名詞",
+          level2: "普通名詞",
+          level3: "一般",
+        },
+      },
+      {
+        surface: "を",
+        reading: "ヲ",
+        pronunciation: "オ",
+        partOfSpeech: {
+          level1: "助詞",
+          level2: "格助詞",
+        },
+      },
+    ];
+
+    const result = adaptUniDicTokensToAccentIR({ tokens });
+
+    expect(result.accentIR.segments).toEqual([
+      {
+        type: "text",
+        text: "発音",
+        reading: "はつおん",
+        hints: {
+          azurePhoneme: {
+            alphabet: "sapi",
+            value: "ハツオン",
+          },
+          azureTrailingSubAlias: "ん",
+        },
+      },
+      {
+        type: "text",
+        text: "を",
+        reading: "を",
+        hints: {
+          azurePhoneme: {
+            alphabet: "sapi",
+            value: "オ",
+          },
+        },
+      },
+    ]);
+  });
+
   it("azureTrailingSubAlias hint がある token には助詞を連結しない", () => {
     const tokens: UniDicRawToken[] = [
       {
