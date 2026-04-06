@@ -421,24 +421,13 @@ export const regressionCases: readonly AnalyzeRegressionCase[] = [
         preventParticleMerge: true,
       },
       {
-        surface: "ない",
-        reading: "ナイ",
-        pronunciation: "ナイ",
+        surface: "ないよう",
+        reading: "ナイヨウ",
+        pronunciation: "ナイヨー",
         partOfSpeech: {
           level1: "形容詞",
           level2: "非自立可能",
         },
-        accentType: "1",
-      },
-      {
-        surface: "よう",
-        reading: "ヨウ",
-        pronunciation: "ヨー",
-        partOfSpeech: {
-          level1: "形状詞",
-          level2: "助動詞語幹",
-        },
-        accentType: "1",
       },
     ],
     expectedAzureSSMLBody:

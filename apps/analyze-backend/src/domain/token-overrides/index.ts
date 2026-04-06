@@ -9,6 +9,7 @@ import {
   matchPercentExpression,
 } from "./numeric-rules.js";
 import {
+  matchNaiYouExpression,
   matchSahenVerbExpression,
   matchToOmouExpression,
   matchTeIruVerbExpression,
@@ -21,6 +22,7 @@ const TOKEN_OVERRIDE_RULES = [
   matchSahenVerbExpression,
   matchTeIruVerbExpression,
   matchToOmouExpression,
+  matchNaiYouExpression,
   matchHourExpression,
   matchMinuteExpression,
   matchDegreeExpression,
