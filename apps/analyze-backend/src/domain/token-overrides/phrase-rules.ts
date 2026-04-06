@@ -20,6 +20,21 @@ const isIruVerb = (token?: UniDicRawToken): token is UniDicRawToken =>
 const isThinkingVerb = (token?: UniDicRawToken): token is UniDicRawToken =>
   Boolean(token && token.partOfSpeech.level1 === "動詞" && token.lemma === "思う");
 
+const isNaiAdjective = (token?: UniDicRawToken): token is UniDicRawToken =>
+  Boolean(
+    token &&
+      token.partOfSpeech.level1 === "形容詞" &&
+      token.surface === "ない"
+  );
+
+const isYouStem = (token?: UniDicRawToken): token is UniDicRawToken =>
+  Boolean(
+    token &&
+      token.partOfSpeech.level1 === "形状詞" &&
+      token.partOfSpeech.level2 === "助動詞語幹" &&
+      token.surface === "よう"
+  );
+
 export const matchSahenVerbExpression = (
   tokens: readonly UniDicRawToken[],
   index: number
@@ -155,5 +170,33 @@ export const matchToOmouExpression = (
       }),
     ],
     nextIndex,
+  };
+};
+
+export const matchNaiYouExpression = (
+  tokens: readonly UniDicRawToken[],
+  index: number
+): TokenOverrideMatch | undefined => {
+  const naiToken = tokens[index];
+  const youToken = tokens[index + 1];
+
+  if (!isNaiAdjective(naiToken) || !isYouStem(youToken)) {
+    return undefined;
+  }
+
+  return {
+    tokens: [
+      createSyntheticToken({
+        surface: `${naiToken.surface}${youToken.surface}`,
+        reading: `${normalizeKanaReading(naiToken.reading) ?? naiToken.surface}${normalizeKanaReading(youToken.reading) ?? youToken.surface}`,
+        pronunciation: `${naiToken.pronunciation ?? naiToken.reading ?? naiToken.surface}${youToken.pronunciation ?? youToken.reading ?? youToken.surface}`,
+        sourceTokens: [naiToken, youToken],
+        partOfSpeech: {
+          level1: "形容詞",
+          level2: "非自立可能",
+        },
+      }),
+    ],
+    nextIndex: index + 2,
   };
 };
