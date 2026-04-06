@@ -10,6 +10,7 @@ import {
 } from "./numeric-rules.js";
 import {
   matchSahenVerbExpression,
+  matchToOmouExpression,
   matchTeIruVerbExpression,
 } from "./phrase-rules.js";
 import type { TokenOverrideMatch } from "./types.js";
@@ -19,6 +20,7 @@ const TOKEN_OVERRIDE_RULES = [
   matchSurfaceOverride,
   matchSahenVerbExpression,
   matchTeIruVerbExpression,
+  matchToOmouExpression,
   matchHourExpression,
   matchMinuteExpression,
   matchDegreeExpression,

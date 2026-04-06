@@ -17,6 +17,9 @@ const isIruVerb = (token?: UniDicRawToken): token is UniDicRawToken =>
       (token.lemma === "居る" || token.lemma === "いる" || token.surface === "い")
   );
 
+const isThinkingVerb = (token?: UniDicRawToken): token is UniDicRawToken =>
+  Boolean(token && token.partOfSpeech.level1 === "動詞" && token.lemma === "思う");
+
 export const matchSahenVerbExpression = (
   tokens: readonly UniDicRawToken[],
   index: number
@@ -83,6 +86,51 @@ export const matchTeIruVerbExpression = (
 
   const sourceTokens = [verbToken, connectiveToken, iruToken];
   let nextIndex = index + 3;
+
+  while (tokens[nextIndex]?.partOfSpeech.level1 === "助動詞") {
+    sourceTokens.push(tokens[nextIndex]!);
+    nextIndex += 1;
+  }
+
+  return {
+    tokens: [
+      createSyntheticToken({
+        surface: sourceTokens.map((token) => token.surface).join(""),
+        reading: sourceTokens
+          .map((token) => normalizeKanaReading(token.reading) ?? token.surface)
+          .join(""),
+        pronunciation: sourceTokens
+          .map((token) => token.pronunciation ?? token.reading ?? token.surface)
+          .join(""),
+        sourceTokens,
+        partOfSpeech: {
+          level1: "動詞",
+          level2: "一般",
+        },
+      }),
+    ],
+    nextIndex,
+  };
+};
+
+export const matchToOmouExpression = (
+  tokens: readonly UniDicRawToken[],
+  index: number
+): TokenOverrideMatch | undefined => {
+  const quoteToken = tokens[index];
+  const verbToken = tokens[index + 1];
+
+  if (
+    !quoteToken ||
+    quoteToken.partOfSpeech.level1 !== "助詞" ||
+    quoteToken.surface !== "と" ||
+    !isThinkingVerb(verbToken)
+  ) {
+    return undefined;
+  }
+
+  const sourceTokens = [quoteToken, verbToken];
+  let nextIndex = index + 2;
 
   while (tokens[nextIndex]?.partOfSpeech.level1 === "助動詞") {
     sourceTokens.push(tokens[nextIndex]!);
