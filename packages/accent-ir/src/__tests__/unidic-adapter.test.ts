@@ -146,6 +146,125 @@ describe("UniDic adapter", () => {
     ]);
   });
 
+  it("助動詞を前の text segment に連結する", () => {
+    const tokens: UniDicRawToken[] = [
+      {
+        surface: "印象",
+        reading: "インショウ",
+        pronunciation: "インショー",
+        partOfSpeech: {
+          level1: "名詞",
+          level2: "普通名詞",
+          level3: "一般",
+        },
+        accent: {
+          accentType: "0",
+        },
+      },
+      {
+        surface: "です",
+        reading: "デス",
+        pronunciation: "デス",
+        partOfSpeech: {
+          level1: "助動詞",
+        },
+      },
+    ];
+
+    const result = adaptUniDicTokensToAccentIR({ tokens });
+
+    expect(result.accentIR.segments).toEqual([
+      {
+        type: "text",
+        text: "印象です",
+        reading: "いんしょうです",
+        accent: { downstep: null },
+        hints: {
+          azurePhoneme: {
+            alphabet: "sapi",
+            value: "インショー+デス",
+          },
+        },
+      },
+    ]);
+  });
+
+  it("接続助詞の が は前の text segment に連結する", () => {
+    const tokens: UniDicRawToken[] = [
+      {
+        surface: "印象",
+        reading: "インショウ",
+        pronunciation: "インショー",
+        partOfSpeech: {
+          level1: "名詞",
+          level2: "普通名詞",
+          level3: "一般",
+        },
+        accent: {
+          accentType: "0",
+        },
+      },
+      {
+        surface: "です",
+        reading: "デス",
+        pronunciation: "デス",
+        partOfSpeech: {
+          level1: "助動詞",
+        },
+      },
+      {
+        surface: "が",
+        reading: "ガ",
+        pronunciation: "ガ",
+        partOfSpeech: {
+          level1: "助詞",
+          level2: "接続助詞",
+        },
+      },
+      {
+        surface: "変わる",
+        reading: "カワル",
+        pronunciation: "カワル",
+        partOfSpeech: {
+          level1: "動詞",
+          level2: "一般",
+        },
+        accent: {
+          accentType: "0",
+        },
+      },
+    ];
+
+    const result = adaptUniDicTokensToAccentIR({ tokens });
+
+    expect(result.accentIR.segments).toEqual([
+      {
+        type: "text",
+        text: "印象ですが",
+        reading: "いんしょうですが",
+        accent: { downstep: null },
+        hints: {
+          azurePhoneme: {
+            alphabet: "sapi",
+            value: "インショー+デスガ",
+          },
+        },
+      },
+      {
+        type: "text",
+        text: "変わる",
+        reading: "かわる",
+        accent: { downstep: null },
+        hints: {
+          azurePhoneme: {
+            alphabet: "sapi",
+            value: "カワル+",
+          },
+        },
+      },
+    ]);
+  });
+
   it("ipa mode では助詞連結後の segment から ipa hint を組み立てる", () => {
     const tokens: UniDicRawToken[] = [
       {

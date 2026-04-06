@@ -74,14 +74,23 @@ export const adaptUniDicTokensToAccentIR = (
     }
 
     if (
-      isAttachableParticle(token) &&
+      isMergeableAuxiliary(token) &&
       isLastSegmentText(segments) &&
-      canMergeAttachableParticleIntoSegment(
-        segments[segments.length - 1] as AccentIRTextSegment
-      )
+      canMergeIntoSegment(segments[segments.length - 1] as AccentIRTextSegment)
     ) {
       const lastSegment = segments[segments.length - 1] as AccentIRTextSegment;
-      mergeParticleIntoSegment(lastSegment, token, azureHintMode);
+      mergeTokenIntoSegment(lastSegment, token, azureHintMode);
+      segmentSourceTokens[segmentSourceTokens.length - 1]?.push(token);
+      continue;
+    }
+
+    if (
+      isAttachableParticle(token) &&
+      isLastSegmentText(segments) &&
+      canMergeIntoSegment(segments[segments.length - 1] as AccentIRTextSegment)
+    ) {
+      const lastSegment = segments[segments.length - 1] as AccentIRTextSegment;
+      mergeTokenIntoSegment(lastSegment, token, azureHintMode);
       segmentSourceTokens[segmentSourceTokens.length - 1]?.push(token);
       continue;
     }
@@ -135,7 +144,7 @@ const createTextSegmentFromToken = (
   return segment;
 };
 
-const mergeParticleIntoSegment = (
+const mergeTokenIntoSegment = (
   segment: AccentIRTextSegment,
   token: UniDicRawToken,
   azureHintMode: UniDicAzureHintMode
@@ -312,7 +321,11 @@ const parseAccent = (
 
 const isAttachableParticle = (token: UniDicRawToken): boolean =>
   token.partOfSpeech.level1 === "助詞" &&
-  ATTACHABLE_PARTICLE_SURFACES.has(token.surface);
+  (ATTACHABLE_PARTICLE_SURFACES.has(token.surface) ||
+    token.partOfSpeech.level2 === "接続助詞");
+
+const isMergeableAuxiliary = (token: UniDicRawToken): boolean =>
+  token.partOfSpeech.level1 === "助動詞";
 
 const createPunctuationBreakSegment = (
   token: UniDicRawToken
@@ -348,7 +361,7 @@ const isLastSegmentBreak = (
 ): segments is readonly [...AccentIRSegment[], AccentIRBreakSegment] =>
   segments.length > 0 && segments[segments.length - 1]?.type === "break";
 
-const canMergeAttachableParticleIntoSegment = (
+const canMergeIntoSegment = (
   segment: AccentIRTextSegment
 ): boolean =>
   segment.text.length > 0 &&
