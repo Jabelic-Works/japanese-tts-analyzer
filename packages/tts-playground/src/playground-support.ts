@@ -9,12 +9,10 @@ import type {
   AnalyzeSuccessResponse,
 } from "@japanese-tts-analyzer/analyze-contract";
 import {
-  buildAzureSampleResult,
   DEFAULT_AZURE_PHONEME_ALPHABET,
-  findSampleCaseById,
 } from "./sample-support";
 
-export { DEFAULT_AZURE_PHONEME_ALPHABET, SAMPLE_CASES } from "./sample-support";
+export { DEFAULT_AZURE_PHONEME_ALPHABET } from "./sample-support";
 
 export const DEFAULT_VOICE = "ja-JP-NanamiNeural";
 export const DEFAULT_OUTPUT_FORMAT = "audio-24khz-48kbitrate-mono-mp3";
@@ -54,31 +52,6 @@ export const readAzurePhonemeAlphabet = (
   value: string
 ): AnalyzeAzurePhonemeAlphabet =>
   value === "ipa" ? "ipa" : DEFAULT_AZURE_PHONEME_ALPHABET;
-
-export const buildSampleSSML = (
-  sampleId: string,
-  voice: string,
-  azurePhonemeAlphabet: AnalyzeAzurePhonemeAlphabet
-): {
-  accentIR: AccentIR;
-  ssml: string;
-  warnings: AccentIREmitWarning[];
-  rawTokens: readonly UniDicRawToken[];
-} => {
-  const sample = findSampleCaseById(sampleId);
-  const result = buildAzureSampleResult({
-    tokens: sample.tokens,
-    voice: voice || DEFAULT_VOICE,
-    azurePhonemeAlphabet,
-  });
-
-  return {
-    accentIR: result.accentIR,
-    ssml: result.ssml,
-    warnings: result.warnings,
-    rawTokens: result.rawTokens,
-  };
-};
 
 export const readErrorMessage = async (response: Response): Promise<string> => {
   const contentType = response.headers.get("content-type") ?? "";
