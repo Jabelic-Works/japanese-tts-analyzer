@@ -35,6 +35,17 @@ const isYouStem = (token?: UniDicRawToken): token is UniDicRawToken =>
       token.surface === "よう"
   );
 
+const isNoParticle = (token?: UniDicRawToken): token is UniDicRawToken =>
+  Boolean(token && token.partOfSpeech.level1 === "助詞" && token.surface === "の");
+
+const isDeClauseEnding = (token?: UniDicRawToken): token is UniDicRawToken =>
+  Boolean(
+    token &&
+      token.surface === "で" &&
+      (token.partOfSpeech.level1 === "助動詞" ||
+        token.partOfSpeech.level1 === "助詞")
+  );
+
 export const matchSahenVerbExpression = (
   tokens: readonly UniDicRawToken[],
   index: number
@@ -198,5 +209,39 @@ export const matchNaiYouExpression = (
       }),
     ],
     nextIndex: index + 2,
+  };
+};
+
+export const matchNoDeExpression = (
+  tokens: readonly UniDicRawToken[],
+  index: number
+): TokenOverrideMatch | undefined => {
+  const verbToken = tokens[index];
+  const noToken = tokens[index + 1];
+  const deToken = tokens[index + 2];
+
+  if (
+    !verbToken ||
+    verbToken.partOfSpeech.level1 !== "動詞" ||
+    !isNoParticle(noToken) ||
+    !isDeClauseEnding(deToken)
+  ) {
+    return undefined;
+  }
+
+  return {
+    tokens: [
+      createSyntheticToken({
+        surface: `${verbToken.surface}${noToken.surface}${deToken.surface}`,
+        reading: `${normalizeKanaReading(verbToken.reading) ?? verbToken.surface}${normalizeKanaReading(noToken.reading) ?? noToken.surface}${normalizeKanaReading(deToken.reading) ?? deToken.surface}`,
+        pronunciation: `${verbToken.pronunciation ?? verbToken.reading ?? verbToken.surface}${noToken.pronunciation ?? noToken.reading ?? noToken.surface}${deToken.pronunciation ?? deToken.reading ?? deToken.surface}`,
+        sourceTokens: [verbToken, noToken, deToken],
+        partOfSpeech: {
+          level1: "動詞",
+          level2: "一般",
+        },
+      }),
+    ],
+    nextIndex: index + 3,
   };
 };
