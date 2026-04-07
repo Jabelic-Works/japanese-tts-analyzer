@@ -265,6 +265,143 @@ describe("UniDic adapter", () => {
     ]);
   });
 
+  it("接続助詞の けれど は前の text segment に連結する", () => {
+    const tokens: UniDicRawToken[] = [
+      {
+        surface: "印象",
+        reading: "インショウ",
+        pronunciation: "インショー",
+        partOfSpeech: {
+          level1: "名詞",
+          level2: "普通名詞",
+          level3: "一般",
+        },
+        accent: {
+          accentType: "0",
+        },
+      },
+      {
+        surface: "です",
+        reading: "デス",
+        pronunciation: "デス",
+        partOfSpeech: {
+          level1: "助動詞",
+        },
+      },
+      {
+        surface: "けれど",
+        reading: "ケレド",
+        pronunciation: "ケレド",
+        partOfSpeech: {
+          level1: "助詞",
+          level2: "接続助詞",
+        },
+      },
+      {
+        surface: "変わる",
+        reading: "カワル",
+        pronunciation: "カワル",
+        partOfSpeech: {
+          level1: "動詞",
+          level2: "一般",
+        },
+        accent: {
+          accentType: "0",
+        },
+      },
+    ];
+
+    const result = adaptUniDicTokensToAccentIR({ tokens });
+
+    expect(result.accentIR.segments).toEqual([
+      {
+        type: "text",
+        text: "印象ですけれど",
+        reading: "いんしょうですけれど",
+        accent: { downstep: null },
+        hints: {
+          azurePhoneme: {
+            alphabet: "sapi",
+            value: "インショー+デスケレド",
+          },
+        },
+      },
+      {
+        type: "text",
+        text: "変わる",
+        reading: "かわる",
+        accent: { downstep: null },
+        hints: {
+          azurePhoneme: {
+            alphabet: "sapi",
+            value: "カワル+",
+          },
+        },
+      },
+    ]);
+  });
+
+  it("けれど の後ろの も も同じ text segment に連結する", () => {
+    const tokens: UniDicRawToken[] = [
+      {
+        surface: "印象",
+        reading: "インショウ",
+        pronunciation: "インショー",
+        partOfSpeech: {
+          level1: "名詞",
+          level2: "普通名詞",
+          level3: "一般",
+        },
+        accent: {
+          accentType: "0",
+        },
+      },
+      {
+        surface: "です",
+        reading: "デス",
+        pronunciation: "デス",
+        partOfSpeech: {
+          level1: "助動詞",
+        },
+      },
+      {
+        surface: "けれど",
+        reading: "ケレド",
+        pronunciation: "ケレド",
+        partOfSpeech: {
+          level1: "助詞",
+          level2: "接続助詞",
+        },
+      },
+      {
+        surface: "も",
+        reading: "モ",
+        pronunciation: "モ",
+        partOfSpeech: {
+          level1: "助詞",
+          level2: "係助詞",
+        },
+      },
+    ];
+
+    const result = adaptUniDicTokensToAccentIR({ tokens });
+
+    expect(result.accentIR.segments).toEqual([
+      {
+        type: "text",
+        text: "印象ですけれども",
+        reading: "いんしょうですけれども",
+        accent: { downstep: null },
+        hints: {
+          azurePhoneme: {
+            alphabet: "sapi",
+            value: "インショー+デスケレドモ",
+          },
+        },
+      },
+    ]);
+  });
+
   it("ipa mode では助詞連結後の segment から ipa hint を組み立てる", () => {
     const tokens: UniDicRawToken[] = [
       {
