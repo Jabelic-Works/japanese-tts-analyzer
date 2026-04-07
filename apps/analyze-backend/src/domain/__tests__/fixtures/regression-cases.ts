@@ -711,6 +711,40 @@ export const regressionCases: readonly AnalyzeRegressionCase[] = [
     expectedAzureSSMLBody: "と思います",
   },
   {
+    id: "phrase-nokoru-node",
+    description: "phrase: 動詞 + ので を 1 発話単位に束ねる",
+    rawTokens: [
+      rawToken({
+        surface: "残る",
+        reading: "ノコル",
+        pronunciation: "ノコル",
+        lemma: "残る",
+        partOfSpeech: VERB_GENERAL,
+      }),
+      rawToken({
+        surface: "の",
+        reading: "ノ",
+        pronunciation: "ノ",
+        partOfSpeech: PARTICLE_CASE,
+      }),
+      rawToken({
+        surface: "で",
+        reading: "デ",
+        pronunciation: "デ",
+        partOfSpeech: AUXILIARY,
+      }),
+    ],
+    expectedOverrideTokens: [
+      {
+        surface: "残るので",
+        reading: "ノコルノデ",
+        pronunciation: "ノコルノデ",
+        partOfSpeech: VERB_GENERAL,
+      },
+    ],
+    expectedAzureSSMLBody: "残るので",
+  },
+  {
     id: "numeric-current-time-930",
     description: "numeric: 9時30分 を時間表現としてまとめる",
     rawTokens: [
