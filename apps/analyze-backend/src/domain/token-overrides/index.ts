@@ -11,6 +11,7 @@ import {
 import {
   matchNoDeExpression,
   matchNaiYouExpression,
+  matchQuotativeTeIruExpression,
   matchToIuExpression,
   matchSahenVerbExpression,
   matchToOmouExpression,
@@ -23,6 +24,7 @@ const TOKEN_OVERRIDE_RULES = [
   matchSurfaceOverride,
   matchSahenVerbExpression,
   matchTeIruVerbExpression,
+  matchQuotativeTeIruExpression,
   matchToOmouExpression,
   matchToIuExpression,
   matchNaiYouExpression,
