@@ -11,6 +11,7 @@ import {
 import {
   matchNoDeExpression,
   matchNaiYouExpression,
+  matchToIuExpression,
   matchSahenVerbExpression,
   matchToOmouExpression,
   matchTeIruVerbExpression,
@@ -23,6 +24,7 @@ const TOKEN_OVERRIDE_RULES = [
   matchSahenVerbExpression,
   matchTeIruVerbExpression,
   matchToOmouExpression,
+  matchToIuExpression,
   matchNaiYouExpression,
   matchNoDeExpression,
   matchHourExpression,

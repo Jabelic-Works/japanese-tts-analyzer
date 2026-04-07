@@ -711,6 +711,40 @@ export const regressionCases: readonly AnalyzeRegressionCase[] = [
     expectedAzureSSMLBody: "と思います",
   },
   {
+    id: "phrase-to-iimasu",
+    description: "phrase: と + 言います を 1 発話単位に束ねる",
+    rawTokens: [
+      rawToken({
+        surface: "と",
+        reading: "ト",
+        pronunciation: "ト",
+        partOfSpeech: PARTICLE_CASE,
+      }),
+      rawToken({
+        surface: "言い",
+        reading: "イイ",
+        pronunciation: "イイ",
+        lemma: "言う",
+        partOfSpeech: VERB_GENERAL,
+      }),
+      rawToken({
+        surface: "ます",
+        reading: "マス",
+        pronunciation: "マス",
+        partOfSpeech: AUXILIARY,
+      }),
+    ],
+    expectedOverrideTokens: [
+      {
+        surface: "と言います",
+        reading: "トイイマス",
+        pronunciation: "トイイマス",
+        partOfSpeech: VERB_GENERAL,
+      },
+    ],
+    expectedAzureSSMLBody: "と言います",
+  },
+  {
     id: "phrase-nokoru-node",
     description: "phrase: 動詞 + ので を 1 発話単位に束ねる",
     rawTokens: [
