@@ -1,6 +1,5 @@
 import type {
   AccentIR,
-  AccentIRBreakSegment,
   AccentIRSegment,
   AccentIRTextSegment,
   JapanesePitchAccent,
@@ -23,8 +22,6 @@ import {
 // MVP adapter only. This does not execute MeCab or load UniDic dictionaries.
 // It converts already-normalized UniDicRawToken arrays into AccentIR.
 
-const STRONG_BREAK_PUNCTUATION = new Set(["。", "！", "!", "？", "?"]);
-const MEDIUM_BREAK_PUNCTUATION = new Set(["、", "，", ","]);
 const ATTACHABLE_PARTICLE_SURFACES = new Set([
   "を",
   "に",
@@ -64,15 +61,6 @@ export const adaptUniDicTokensToAccentIR = (
   const azureHintMode = input.azureHintMode ?? "auto";
 
   for (const [tokenIndex, token] of input.tokens.entries()) {
-    const punctuationBreak = createPunctuationBreakSegment(token);
-    if (punctuationBreak) {
-      if (!isLastSegmentBreak(segments)) {
-        segments.push(punctuationBreak);
-        segmentSourceTokens.push([]);
-      }
-      continue;
-    }
-
     if (
       isMergeableAuxiliary(token) &&
       isLastSegmentText(segments) &&
@@ -327,39 +315,10 @@ const isAttachableParticle = (token: UniDicRawToken): boolean =>
 const isMergeableAuxiliary = (token: UniDicRawToken): boolean =>
   token.partOfSpeech.level1 === "助動詞";
 
-const createPunctuationBreakSegment = (
-  token: UniDicRawToken
-): AccentIRBreakSegment | undefined => {
-  if (token.partOfSpeech.level1 !== "補助記号") {
-    return undefined;
-  }
-
-  if (STRONG_BREAK_PUNCTUATION.has(token.surface)) {
-    return {
-      type: "break",
-      strength: "strong",
-    };
-  }
-
-  if (MEDIUM_BREAK_PUNCTUATION.has(token.surface)) {
-    return {
-      type: "break",
-      strength: "medium",
-    };
-  }
-
-  return undefined;
-};
-
 const isLastSegmentText = (
   segments: readonly AccentIRSegment[]
 ): segments is readonly [...AccentIRSegment[], AccentIRTextSegment] =>
   segments.length > 0 && segments[segments.length - 1]?.type === "text";
-
-const isLastSegmentBreak = (
-  segments: readonly AccentIRSegment[]
-): segments is readonly [...AccentIRSegment[], AccentIRBreakSegment] =>
-  segments.length > 0 && segments[segments.length - 1]?.type === "break";
 
 const canMergeIntoSegment = (
   segment: AccentIRTextSegment

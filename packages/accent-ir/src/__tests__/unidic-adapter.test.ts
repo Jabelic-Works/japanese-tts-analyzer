@@ -846,7 +846,7 @@ describe("UniDic adapter", () => {
     ]);
   });
 
-  it("読点を medium break segment に変換する", () => {
+  it("読点を text segment として保持する", () => {
     const tokens: UniDicRawToken[] = [
       {
         surface: "東京",
@@ -899,8 +899,8 @@ describe("UniDic adapter", () => {
         },
       },
       {
-        type: "break",
-        strength: "medium",
+        type: "text",
+        text: "、",
       },
       {
         type: "text",
@@ -917,7 +917,7 @@ describe("UniDic adapter", () => {
     ]);
   });
 
-  it("文中の句点を strong break segment に変換する", () => {
+  it("文中の句点を text segment として保持する", () => {
     const tokens: UniDicRawToken[] = [
       {
         surface: "東京",
@@ -970,8 +970,8 @@ describe("UniDic adapter", () => {
         },
       },
       {
-        type: "break",
-        strength: "strong",
+        type: "text",
+        text: "。",
       },
       {
         type: "text",
@@ -988,7 +988,7 @@ describe("UniDic adapter", () => {
     ]);
   });
 
-  it("文末の句点を break segment に変換する", () => {
+  it("文末の句点を text segment として保持する", () => {
     const tokens: UniDicRawToken[] = [
       {
         surface: "持つ",
@@ -1027,8 +1027,8 @@ describe("UniDic adapter", () => {
         },
       },
       {
-        type: "break",
-        strength: "strong",
+        type: "text",
+        text: "。",
       },
     ]);
   });
