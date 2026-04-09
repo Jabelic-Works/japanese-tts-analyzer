@@ -31,7 +31,7 @@ export const analyzeTextWithMeCab = async (
 export const parseUniDic22Output = (output: string): UniDicRawToken[] =>
   output
     .split(/\r?\n/)
-    .map((line) => line.trim())
+    .map((line) => line.replace(/\r$/u, ""))
     .filter((line) => line.length > 0 && line !== "EOS")
     .map(parseUniDic22Line);
 

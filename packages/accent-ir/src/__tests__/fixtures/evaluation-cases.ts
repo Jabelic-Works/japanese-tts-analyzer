@@ -344,7 +344,7 @@ export const azureFirstEvaluationCases: readonly AzureFirstEvaluationCase[] = [
   },
   {
     id: "motsu-sentence-end",
-    description: "文末 pause: 持つ。",
+    description: "文末句点を保持: 持つ。",
     tokens: [
       {
         surface: "持つ",
@@ -382,15 +382,15 @@ export const azureFirstEvaluationCases: readonly AzureFirstEvaluationCase[] = [
           },
         },
         {
-          type: "break",
-          strength: "strong",
+          type: "text",
+          text: "。",
         },
       ],
     },
     expectedAdapterWarnings: [],
     azureOptions: DEFAULT_AZURE_OPTIONS,
     expectedAzureSSML:
-      '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="ja-JP"><voice name="ja-JP-NanamiNeural"><phoneme alphabet="sapi" ph="モ\'ツ">持つ</phoneme><break strength="strong"/></voice></speak>',
+      '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="ja-JP"><voice name="ja-JP-NanamiNeural"><phoneme alphabet="sapi" ph="モ\'ツ">持つ</phoneme>。</voice></speak>',
     expectedAzureWarnings: [],
   },
 ] as const;
