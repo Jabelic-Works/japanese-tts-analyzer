@@ -17,7 +17,7 @@
     "apps/analyze-backend"
   ],
   "dependencies": {
-    "typescript": "^5.8.3"
+    "typescript": "^6.0.3"
   },
   "volta": {
     "node": "24.14.1"
