@@ -23,7 +23,7 @@
     "@japanese-tts-analyzer/accent-ir": "workspace:*",
     "@japanese-tts-analyzer/analyze-contract": "workspace:*",
     "naive-ui": "^2.44.1",
-    "vue": "^3.5.31"
+    "vue": "^3.5.33"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
